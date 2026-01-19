@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <script src="{{ url_for('static', filename='js/booth.js') }}"></script>
-    <title>Wedding Photo Booth</title>
+    <title>Photo Booth</title>
     <style>
         :root { --pink: #e91e63; --dark: #0a0a0a; }
         body { margin: 0; background: var(--dark); color: white; font-family: sans-serif; overflow: hidden; }
@@ -38,25 +37,20 @@
 </head>
 <body>
 
-    <div id="app">
-        {% include "components/_start.html" %}
-        {% include "components/_options.html" %}
-        {% include "components/_camera.html" %}
-        {% include "components/_preview.html" %}
-        {% include "components/_success.html" %}
+        <div id="app">
+            <div id="screen-camera" class="screen" style="background: #000;">
+        <video id="video" autoplay playsinline muted style="width: 100vw; height: 100vh; object-fit: cover; transform: scaleX(-1);"></video>
+    
+        <div id="countdown" style="position: absolute; font-size: 150px; color: var(--grey); font-weight: bold; z-index: 5; opacity: 0.5;"></div>
+
+            <button id="btn-shoot" onclick="Booth.startCountdown()" style="
+            position: absolute; bottom: 50px; padding: 20px 60px; border-radius: 50px;
+            border: none; background: #a7a4a4; color: white; font-weight: bold; font-size: 22px; z-index: 5;
+            transition: opacity 0.3s ease; /* Adicione isso para um efeito suave */
+        ">📸 START</button>
+        </div>
     </div>
 
-    <script>
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        }
-        
-        // Esta função é chamada pelo botão START no _start.html
-        function startExperience() {
-            showScreen('screen-camera');
-            initCamera(); // Função que está dentro do _camera.html
-        }
-    </script>
+    
 </body>
 </html>
