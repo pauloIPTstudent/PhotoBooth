@@ -1,56 +1,92 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Meus Atalhos</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Photo Booth</title>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <style>
-        :root { --pink: #e91e63; --dark: #0a0a0a; }
-        body { margin: 0; background: var(--dark); color: white; font-family: sans-serif; overflow: hidden; }
-        
-        .screen { 
-            position: fixed; width: 100vw; height: 100vh; 
-            display: none; align-items: center; justify-content: center; 
-            flex-direction: column; 
+        :root {
+            --bg-color: #3d4a15; /* Verde oliva da imagem */
+            --accent-color: #f7f3e3; /* Creme das pétalas */
+            --detail-color: #eeb035; /* Amarelo do centro */
         }
-        .active { display: flex; }
-        .screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    display: none; /* Escondido por padrão */
-    flex-direction: column;
-    align-items: center;
-    overflow-y: auto; /* IMPORTANTE para o preview scrollar */
-    -webkit-overflow-scrolling: touch;
-    background: #000;
-    z-index: 10;
-}
 
-.screen.active {
-    display: flex !important; /* O !important garante que sobrescreva outros estilos */
-}
+        body {
+            background-color: var(--bg-color);
+            color: var(--accent-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .flower-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            /* Um círculo amarelo simples para remeter à imagem */
+            background-color: var(--detail-color);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        a {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            text-decoration: none;
+            padding: 18px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: transform 0.2s ease;
+            display: block;
+        }
+
+        a:active {
+            transform: scale(0.95);
+            background-color: var(--detail-color);
+        }
     </style>
 </head>
 <body>
 
-        <div id="app">
-            <div id="screen-camera" class="screen" style="background: #000;">
-        <video id="video" autoplay playsinline muted style="width: 100vw; height: 100vh; object-fit: cover; transform: scaleX(-1);"></video>
-    
-        <div id="countdown" style="position: absolute; font-size: 150px; color: var(--grey); font-weight: bold; z-index: 5; opacity: 0.5;"></div>
-
-            <button id="btn-shoot" onclick="Booth.startCountdown()" style="
-            position: absolute; bottom: 50px; padding: 20px 60px; border-radius: 50px;
-            border: none; background: #a7a4a4; color: white; font-weight: bold; font-size: 22px; z-index: 5;
-            transition: opacity 0.3s ease; /* Adicione isso para um efeito suave */
-        ">📸 START</button>
+    <div class="container">
+        <div class="flower-icon"></div>
+        <h1>Início</h1>
+        
+        <div class="links-grid">
+            <a href="https://www.google.com">Google</a>
+            <a href="https://www.notion.so">Notion</a>
+            <a href="https://www.canva.com">Canva</a>
+            <a href="https://www.youtube.com">YouTube</a>
         </div>
     </div>
 
-    
 </body>
 </html>
