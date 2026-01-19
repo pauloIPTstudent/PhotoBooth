@@ -1,0 +1,54 @@
+<div id="screen-options" class="screen" style="background: radial-gradient(circle, #2e0819, #0a0a0a);">
+    <h2 style="margin-bottom: 30px; letter-spacing: 2px;">PERSONALIZE SUA FOTO</h2>
+
+    <p>ESCOLHA O FILTRO:</p>
+    <div class="filter-options" style="display: flex; gap: 15px; margin-bottom: 40px;">
+        <button class="opt-btn filter-btn active" onclick="setFilter('none', this)">NORMAL</button>
+        <button class="opt-btn filter-btn" onclick="setFilter('grayscale(100%)', this)">P&B</button>
+        <button class="opt-btn filter-btn" onclick="setFilter('sepia(80%)', this)">VINTAGE</button>
+    </div>
+
+    <p>QUANTIDADE DE FOTOS:</p>
+    <div class="qty-options" style="display: flex; gap: 15px; margin-bottom: 50px;">
+        <button class="opt-btn qty-btn active" onclick="setQty(1, this)">1 FOTO</button>
+        <button class="opt-btn qty-btn" onclick="setQty(3, this)">3 FOTOS</button>
+    </div>
+
+    <button onclick="confirmOptions()" style="
+        padding: 20px 60px; border-radius: 50px; background: var(--pink);
+        color: white; border: none; font-weight: bold; font-size: 20px;
+    ">AVANÇAR ⮕</button>
+
+    <style>
+        .opt-btn {
+            background: rgba(255,255,255,0.1); border: 2px solid #444; color: white;
+            padding: 15px 25px; border-radius: 10px; cursor: pointer;
+        }
+        .opt-btn.active { border-color: var(--pink); background: rgba(233, 30, 99, 0.2); }
+        p { font-size: 14px; margin-bottom: 10px; color: #888; }
+    </style>
+</div>
+
+<script>
+    let selectedFilter = 'none';
+    let selectedQty = 1;
+
+    function setFilter(filter, el) {
+        selectedFilter = filter;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function setQty(q, el) {
+        selectedQty = q;
+        document.querySelectorAll('.qty-btn').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function confirmOptions() {
+        showScreen('screen-camera');
+        // Passamos as opções para o objeto Booth
+        Booth.config(selectedFilter, selectedQty);
+        initCamera();
+    }
+</script>
