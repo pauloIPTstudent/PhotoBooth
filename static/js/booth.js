@@ -94,40 +94,16 @@ const Booth = {
     showFinalPreview() {
         console.log("Iniciando Preview. Fotos tiradas:", this.photosTaken.length);
         
-        // Se foram tiradas exatamente 3 fotos, mostrar a emoldura
-        if (this.photosTaken.length === 3) {
-            if (typeof showFramePreview === "function") {
-                showFramePreview();
-            } else {
-                console.error("Função showFramePreview não encontrada!");
-            }
-        } else {
-            // Caso contrário, mostrar preview normal
-            const container = document.getElementById('photos-scroll-container');
-            if (!container) {
-                console.error("Erro: Container 'photos-scroll-container' não encontrado!");
-                return;
-            }
-
-            container.innerHTML = ""; // Limpa fotos antigas
-
-            this.photosTaken.forEach((photoData, index) => {
-                const img = document.createElement('img');
-                img.src = photoData;
-                img.style.width = "85vw";
-                img.style.borderRadius = "12px";
-                img.style.border = "3px solid white";
-                img.style.boxShadow = "0 10px 20px rgba(0,0,0,0.5)";
-                
-                container.appendChild(img);
-            });
-
-            // Muda a tela
-            showScreen('screen-preview');
-            
-            // Força o scroll para o topo
-            document.getElementById('screen-preview').scrollTo(0, 0);
+        const container = document.getElementById('photos-scroll-container');
+        if (!container) {
+            console.error("Erro: Container 'photos-scroll-container' não encontrado!");
+            return;
         }
+
+        container.innerHTML = ""; // Limpa fotos antigas
+
+        // Todas as fotos passam pela composição (1 ou 3)
+        this.sendComposed();
     },
 
     retake() {
@@ -135,6 +111,10 @@ const Booth = {
         const btn = document.getElementById('btn-shoot');
         if (btn) btn.style.display = 'block';
         showScreen('screen-camera');
+        // Assegura que a câmara está ainda ativa
+        if (this.video && !this.video.srcObject) {
+            this.startCamera();
+        }
     },
 
     async send() {
@@ -146,18 +126,9 @@ const Booth = {
         sendBtn.disabled = true;
 
         try {
-            // Envia cada foto da sequência individualmente
-            for (let i = 0; i < this.photosTaken.length; i++) {
-                await fetch('/upload', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        image: this.photosTaken[i],
-                        photo_index: i + 1,
-                        total_in_sequence: this.photosTaken.length
-                    })
-                });
-            }
+            // Todas as fotos já foram compostas e salvas no servidor
+            // Apenas mostra a mensagem de sucesso
+            console.log("Tira já foi composta e salva no servidor");
             
             // Chama a função global de sucesso (definida no _success.html)
             if (typeof startSuccessFlow === "function") {
@@ -168,25 +139,27 @@ const Booth = {
             }
             
         } catch (err) {
-            alert("Erro ao enviar sequência de fotos.");
+            alert("Erro ao processar sequência de fotos.");
             sendBtn.disabled = false;
             sendBtn.innerText = originalText;
         }
     },
 
     async sendComposed() {
-        if (this.photosTaken.length !== 3) {
-            alert("Apenas 3 fotos podem ser emolduradas");
+        // Aceita 1 ou 3 fotos para composição
+        if (this.photosTaken.length !== 1 && this.photosTaken.length !== 3) {
+            alert("Apenas 1 ou 3 fotos podem ser compostas");
             return;
         }
 
-        const sendBtn = event.currentTarget;
-        const originalText = sendBtn.innerText;
-        sendBtn.innerText = "ENVIANDO...";
-        sendBtn.disabled = true;
+        const container = document.getElementById('photos-scroll-container');
+        if (!container) return;
+
+        container.innerHTML = '<p style="color: white; font-size: 18px; margin-top: 50px;">Processando sua tira...</p>';
+        showScreen('screen-preview');
 
         try {
-            // Envia as 3 fotos para serem compostas num layout de photobooth
+            // Envia as fotos para serem compostas num layout de photobooth
             const response = await fetch('/compose', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -198,22 +171,26 @@ const Booth = {
             const result = await response.json();
 
             if (result.status === 'success') {
-                // Chama a função global de sucesso
-                if (typeof startSuccessFlow === "function") {
-                    startSuccessFlow();
-                } else {
-                    showScreen('screen-success');
-                    setTimeout(() => window.location.reload(), 5000);
-                }
+                // Mostra a imagem composta no preview
+                container.innerHTML = "";
+                const img = document.createElement('img');
+                img.src = `/${result.url || result.filename}`;
+                img.style.width = "85vw";
+                img.style.borderRadius = "12px";
+                img.style.border = "3px solid white";
+                img.style.boxShadow = "0 10px 20px rgba(0,0,0,0.5)";
+                
+                container.appendChild(img);
+                showScreen('screen-preview');
+                document.getElementById('screen-preview').scrollTo(0, 0);
             } else {
                 throw new Error(result.message || "Erro ao compor fotos");
             }
             
         } catch (err) {
             console.error("Erro:", err);
-            alert("Erro ao enviar composição: " + err.message);
-            sendBtn.disabled = false;
-            sendBtn.innerText = originalText;
+            alert("Erro ao processar composição: " + err.message);
+            container.innerHTML = "";
         }
     }
 };
