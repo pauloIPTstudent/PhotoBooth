@@ -94,30 +94,40 @@ const Booth = {
     showFinalPreview() {
         console.log("Iniciando Preview. Fotos tiradas:", this.photosTaken.length);
         
-        const container = document.getElementById('photos-scroll-container');
-        if (!container) {
-            console.error("Erro: Container 'photos-scroll-container' não encontrado!");
-            return;
-        }
+        // Se foram tiradas exatamente 3 fotos, mostrar a emoldura
+        if (this.photosTaken.length === 3) {
+            if (typeof showFramePreview === "function") {
+                showFramePreview();
+            } else {
+                console.error("Função showFramePreview não encontrada!");
+            }
+        } else {
+            // Caso contrário, mostrar preview normal
+            const container = document.getElementById('photos-scroll-container');
+            if (!container) {
+                console.error("Erro: Container 'photos-scroll-container' não encontrado!");
+                return;
+            }
 
-        container.innerHTML = ""; // Limpa fotos antigas
+            container.innerHTML = ""; // Limpa fotos antigas
 
-        this.photosTaken.forEach((photoData, index) => {
-            const img = document.createElement('img');
-            img.src = photoData;
-            img.style.width = "85vw";
-            img.style.borderRadius = "12px";
-            img.style.border = "3px solid white";
-            img.style.boxShadow = "0 10px 20px rgba(0,0,0,0.5)";
+            this.photosTaken.forEach((photoData, index) => {
+                const img = document.createElement('img');
+                img.src = photoData;
+                img.style.width = "85vw";
+                img.style.borderRadius = "12px";
+                img.style.border = "3px solid white";
+                img.style.boxShadow = "0 10px 20px rgba(0,0,0,0.5)";
+                
+                container.appendChild(img);
+            });
+
+            // Muda a tela
+            showScreen('screen-preview');
             
-            container.appendChild(img);
-        });
-
-        // Muda a tela
-        showScreen('screen-preview');
-        
-        // Força o scroll para o topo
-        document.getElementById('screen-preview').scrollTo(0, 0);
+            // Força o scroll para o topo
+            document.getElementById('screen-preview').scrollTo(0, 0);
+        }
     },
 
     retake() {
@@ -159,6 +169,49 @@ const Booth = {
             
         } catch (err) {
             alert("Erro ao enviar sequência de fotos.");
+            sendBtn.disabled = false;
+            sendBtn.innerText = originalText;
+        }
+    },
+
+    async sendComposed() {
+        if (this.photosTaken.length !== 3) {
+            alert("Apenas 3 fotos podem ser emolduradas");
+            return;
+        }
+
+        const sendBtn = event.currentTarget;
+        const originalText = sendBtn.innerText;
+        sendBtn.innerText = "ENVIANDO...";
+        sendBtn.disabled = true;
+
+        try {
+            // Envia as 3 fotos para serem compostas num layout de photobooth
+            const response = await fetch('/compose', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    photos: this.photosTaken
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                // Chama a função global de sucesso
+                if (typeof startSuccessFlow === "function") {
+                    startSuccessFlow();
+                } else {
+                    showScreen('screen-success');
+                    setTimeout(() => window.location.reload(), 5000);
+                }
+            } else {
+                throw new Error(result.message || "Erro ao compor fotos");
+            }
+            
+        } catch (err) {
+            console.error("Erro:", err);
+            alert("Erro ao enviar composição: " + err.message);
             sendBtn.disabled = false;
             sendBtn.innerText = originalText;
         }

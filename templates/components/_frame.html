@@ -1,0 +1,100 @@
+<div id="screen-frame" class="screen" style="background: #000; overflow-y: auto; padding: 20px;">
+    <div style="max-width: 100%; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
+        
+        <h1 style="color: white; margin-bottom: 30px; font-size: 32px;">✨ Sua Composição ✨</h1>
+
+        <!-- Preview da emoldura -->
+        <div id="frame-preview" style="
+            background: black;
+            border: 20px solid #e6326b;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 90%;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(230, 50, 107, 0.5);
+        ">
+            <div id="photos-frame-container" style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- As 3 fotos serão inseridas aqui -->
+            </div>
+        </div>
+
+        <!-- Botões de ação -->
+        <div style="display: flex; gap: 20px; width: 100%; max-width: 500px; margin-bottom: 30px;">
+            <button onclick="Booth.retake()" style="
+                flex: 1;
+                padding: 15px;
+                background: #ff6b6b;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: background 0.3s;
+            " onmouseover="this.style.background='#ff5252'" onmouseout="this.style.background='#ff6b6b'">
+                🔄 Repetir
+            </button>
+            
+            <button onclick="Booth.sendComposed()" style="
+                flex: 1;
+                padding: 15px;
+                background: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: background 0.3s;
+            " onmouseover="this.style.background='#45a049'" onmouseout="this.style.background='#4CAF50'">
+                📤 Enviar
+            </button>
+        </div>
+
+        <p style="color: #aaa; font-size: 14px; text-align: center;">
+            Sua composição será salva e impressa
+        </p>
+    </div>
+
+    <style>
+        #photos-frame-container img {
+            width: 100%;
+            max-width: 400px;
+            border: 3px solid white;
+            border-radius: 6px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+    </style>
+</div>
+
+<script>
+    // Função chamada quando termina a captura das 3 fotos
+    function showFramePreview() {
+        console.log("Mostrando preview da emoldura com", Booth.photosTaken.length, "fotos");
+        
+        const container = document.getElementById('photos-frame-container');
+        if (!container) {
+            console.error("Container não encontrado!");
+            return;
+        }
+
+        container.innerHTML = ""; // Limpa fotos antigas
+
+        Booth.photosTaken.forEach((photoData, index) => {
+            const img = document.createElement('img');
+            img.src = photoData;
+            img.style.maxWidth = "100%";
+            img.style.borderRadius = "6px";
+            img.style.border = "3px solid white";
+            img.style.boxShadow = "0 5px 15px rgba(0,0,0,0.5)";
+            
+            container.appendChild(img);
+        });
+
+        // Muda a tela
+        showScreen('screen-frame');
+        
+        // Força o scroll para o topo
+        document.getElementById('screen-frame').scrollTo(0, 0);
+    }
+</script>

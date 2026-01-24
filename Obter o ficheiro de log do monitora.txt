@@ -1,0 +1,15 @@
+Obter o ficheiro de log do monitoramento do Bluetooth HCI (Android)
+
+
+1. ativar registro de monitoração... Bluetooth HCI
+
+2. fazer a leitura desejada
+
+3.obeter o arquivo
+	1 - tentar obter diretamente usado o comando
+	./adb pull /sdcard/btsnoop_hci.log
+
+	2 - Gerar um relatório de error (opções de programador) do tipo iterativo e envia-lo clicando no popup 
+
+
+Analise do dados
