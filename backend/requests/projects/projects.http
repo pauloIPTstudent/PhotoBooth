@@ -32,7 +32,10 @@ Authorization: Bearer {{TOKEN}}
 {
   "name": "Updated Project Name",
   "description": "Updated via REST Client",
-  "primary": "#111111"
+  "theme": "default",
+  "primary": "#111111",
+  "secondary": "#00ff00",
+  "tertiary": "#0000ff"
 }
 
 ### Delete project

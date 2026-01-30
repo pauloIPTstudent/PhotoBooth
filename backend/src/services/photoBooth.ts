@@ -3,7 +3,7 @@ import { Frame } from '../models/types.js';
 import { getFrameById } from './frameService.js';
 
 export async function composePhotoBooth(
-  photoUrls: string[],
+  photoBuffers: Buffer[], // Agora recebe buffers binários
   frameId: string,
   backgroundColor: string = '#FFFFFF'
 ) {
@@ -22,9 +22,10 @@ export async function composePhotoBooth(
     const bgColor = frame.backgroundColor || backgroundColor;
 
     const requiredPhotos = rows * cols;
-    if (photoUrls.length !== requiredPhotos) {
+    // Verificamos se o número de buffers recebidos é suficiente
+    if (photoBuffers.length < requiredPhotos) {
       throw new Error(
-        `Frame "${frameId}" requires ${requiredPhotos} photos, but ${photoUrls.length} were provided`
+        `Frame "${frameId}" requires ${requiredPhotos} photos, but only ${photoBuffers.length} were provided`
       );
     }
 
@@ -44,26 +45,26 @@ export async function composePhotoBooth(
     let photoIndex = 0;
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
-        const photoUrl = photoUrls[photoIndex];
+        const currentBuffer = photoBuffers[photoIndex];
 
         try {
-          // Carregar foto
-          const photo = await Jimp.read(photoUrl);
+          // Lê a imagem diretamente do Buffer
+          const photo = await Jimp.read(currentBuffer);
 
-          // Redimensionar para o tamanho do frame
-          photo.resize({
+          // Redimensionar para cobrir a área (cover garante que preencha sem distorcer)
+          photo.cover({
             w: photoWidth,
-            h: photoHeight,
+            h: photoHeight
           });
 
-          // Calcular posição
+          // Calcular posição X e Y
           const x = 20 + col * (photoWidth + padding);
           const y = 20 + row * (photoHeight + padding);
 
-          // Compor no canvas
+          // Compor no canvas principal
           composite.blit({ src: photo, x, y });
         } catch (err) {
-          console.warn(`Failed to load photo ${photoIndex}: ${photoUrl}`);
+          console.error(`Failed to process photo at index ${photoIndex}`, err);
         }
 
         photoIndex++;

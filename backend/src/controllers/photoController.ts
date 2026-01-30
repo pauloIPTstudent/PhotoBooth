@@ -2,6 +2,8 @@ import QRCode from 'qrcode';
 import { composePhotoBooth } from '../services/photoBooth.js';
 import { listFrames } from '../services/frameService.js';
 import * as photoService from '../services/photoService.js';
+import path from 'path';
+import fs from 'fs';
 
 // Armazenar tokens com expiração (5 minutos = 300000 ms)
 const QR_TOKEN_EXPIRATION = 5 * 60 * 1000; // 5 minutos em milissegundos
@@ -12,11 +14,18 @@ export const getPhotos = async (req: any, res: any) => {
     const { projectId } = req.params;
     const photos = await photoService.getPhotosByProjectId(projectId);
 
+    // Mapeamos as fotos para incluir a URL de acesso ao arquivo
+    const photosWithUrls = photos.map((photo: any) => ({
+      ...photo,
+      // Assume-se que a rota para getPhotoFile seja /api/photos/:id
+      url: `${req.protocol}://${req.get('host')}/api/photos/${photo.id}/file`
+    }));
+
     res.json({
       success: true,
-      data: photos,
+      data: photosWithUrls,
       total: photos.length,
-    });
+    }); 
   } catch (err: any) {
     res.status(500).json({
       success: false,
@@ -94,6 +103,30 @@ export const getPhotoByQRCode = async (req: any, res: any) => {
       message: 'Error fetching photo',
       error: err.message,
     });
+  }
+};
+
+export const getPhotoFile = async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+    const photo = await photoService.getPhotoById(id);
+    if (!photo) {
+      return res.status(404).json({ success: false, message: 'Photo not found' });
+    }
+
+    if (!photo.projectId || !photo.fileName) {
+      return res.status(400).json({ success: false, message: 'Invalid photo metadata' });
+    }
+
+    const filePath = path.join(process.cwd(), 'uploads', photo.projectId, photo.fileName);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ success: false, message: 'File not found on disk' });
+    }
+
+    return res.sendFile(filePath);
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: 'Error sending photo file', error: err.message });
   }
 };
 
@@ -179,8 +212,11 @@ export const deletePhoto = async (req: any, res: any) => {
 };
 
 export const framePhoto = async (req: any, res: any) => {
-  const { id } = req.params;
-  const { frameId, photoUrls, backgroundColor } = req.body;
+  const { id } = req.params; // ID da sessão ou usuário
+  const { frameId } = req.body;
+
+  // No Express com Multer, os arquivos ficam em req.files
+  const files = req.files as Express.Multer.File[];
 
   if (!frameId) {
     return res.status(400).json({
@@ -189,19 +225,22 @@ export const framePhoto = async (req: any, res: any) => {
     });
   }
 
-  if (!photoUrls || !Array.isArray(photoUrls) || photoUrls.length === 0) {
-    return res.status(400).json({
-      success: false,
-      message: 'photoUrls array is required and must contain at least one photo URL',
+  if (!files || files.length === 0) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'No images uploaded. Please send photo files.' 
     });
   }
 
   try {
+
+    // 3. Compor o Photo Booth
+    // Passamos os buffers dos arquivos e as configurações da frame
+    const photoBuffers = files.map(file => file.buffer);
     // Compor o photo booth
     const composedImage = await composePhotoBooth(
-      photoUrls,
+      photoBuffers,
       frameId,
-      backgroundColor || '#FFFFFF'
     );
 
     // Converter para base64
@@ -266,8 +305,8 @@ export const generatePhotoQRCode = async (req: any, res: any) => {
       expiresAt: expiresAt,
     });
 
-    // Criar URL do QR code (link para acessar a foto via token)
-    const qrUrl = `${baseUrl}/api/photos/qrcode/${qrToken}`;
+    // Criar URL do QR code (link público que redireciona para download via token)
+    const qrUrl = `${baseUrl}/api/photos/download/${qrToken}/file`;
 
     // Gerar QR code como Data URL (base64)
     const qrCodeDataUrl = await QRCode.toDataURL(qrUrl);
@@ -290,5 +329,38 @@ export const generatePhotoQRCode = async (req: any, res: any) => {
       message: 'Error generating QR code',
       error: (error as any).message,
     });
+  }
+};
+
+export const downloadPhotoByToken = async (req: any, res: any) => {
+  const { token } = req.params;
+  try {
+    const tokenData = qrTokenStore.get(token);
+    if (!tokenData) {
+      return res.status(404).send('Invalid or expired download token');
+    }
+
+    if (Date.now() > tokenData.expiresAt) {
+      qrTokenStore.delete(token);
+      return res.status(401).send('Download token has expired');
+    }
+
+    const photo = await photoService.getPhotoById(tokenData.photoId);
+    if (!photo) return res.status(404).send('Photo not found');
+
+    if (!photo.projectId || !photo.fileName) {
+      return res.status(400).send('Invalid photo metadata');
+    }
+
+    const filePath = path.join(process.cwd(), 'uploads', photo.projectId, photo.fileName);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).send('File not found on disk');
+    }
+
+    // Enviar o ficheiro de imagem diretamente
+    return res.sendFile(filePath);
+  } catch (err: any) {
+    return res.status(500).send('Error processing download token');
   }
 };

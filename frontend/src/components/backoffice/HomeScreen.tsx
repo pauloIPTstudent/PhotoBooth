@@ -49,7 +49,7 @@ export const HomeScreen = ({ userName }: HomeScreenProps) => {
           </button>
           <button className="flex items-center justify-center sm:justify-start gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg font-semibold transition-colors text-sm md:text-base">
             <Plus size={18} className="flex-shrink-0" />
-            <span>Novo Tema</span>
+            <span>Nova Frame</span>
           </button>
         </div>
       </div>

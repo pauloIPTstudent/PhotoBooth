@@ -1,2 +1,3 @@
-export declare function composePhotoBooth(photoUrls: string[], frameId: string, backgroundColor?: string): Promise<Buffer<ArrayBufferLike>>;
+export declare function composePhotoBooth(photoBuffers: Buffer[], // Agora recebe buffers binários
+frameId: string, backgroundColor?: string): Promise<Buffer<ArrayBufferLike>>;
 //# sourceMappingURL=photoBooth.d.ts.map

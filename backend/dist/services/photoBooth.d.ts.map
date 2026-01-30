@@ -1,1 +1,1 @@
-{"version":3,"file":"photoBooth.d.ts","sourceRoot":"","sources":["../../src/services/photoBooth.ts"],"names":[],"mappings":"AAIA,wBAAsB,iBAAiB,CACrC,SAAS,EAAE,MAAM,EAAE,EACnB,OAAO,EAAE,MAAM,EACf,eAAe,GAAE,MAAkB,oCAwEpC"}
+{"version":3,"file":"photoBooth.d.ts","sourceRoot":"","sources":["../../src/services/photoBooth.ts"],"names":[],"mappings":"AAIA,wBAAsB,iBAAiB,CACrC,YAAY,EAAE,MAAM,EAAE,EAAE,gCAAgC;AACxD,OAAO,EAAE,MAAM,EACf,eAAe,GAAE,MAAkB,oCAyEpC"}
