@@ -3,16 +3,14 @@ export interface Project {
   userId: string;
   name: string;
   description: string;
-  style: ProjectStyle;
+  theme: string;
+  primary: string;
+  secondary: string;
+  tertiary: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface ProjectStyle {
-  theme: string;
-  colors: string[];
-  layout: string;
-}
 
 export interface Photo {
   id: string;
@@ -33,3 +31,20 @@ export interface AuthResponse {
     name: string;
   };
 }
+
+export interface Frame {
+  id: string;
+  name: string;
+  description?: string;
+  rows: number;
+  cols: number;
+  photoWidth: number;
+  photoHeight: number;
+  padding: number;
+  backgroundColor: string;
+  message?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export type FrameId = 'grid_2x2' | 'grid_3x1' | 'grid_1x4' | 'grid_2x3';

@@ -1,0 +1,16 @@
+# REST Client requests for Auth
+# Set BASE_URL below if needed
+# Example: replace with your running backend URL
+@BASE_URL = http://localhost:3001
+
+### Login
+POST {{BASE_URL}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+
+# After a successful login, copy the returned token and set it in subsequent requests as:
+# Authorization: Bearer <token>

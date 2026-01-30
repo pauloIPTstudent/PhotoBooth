@@ -1,0 +1,50 @@
+# Frames endpoints
+@BASE_URL = http://localhost:3001
+@TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE3Njk3NzU3NzksImV4cCI6MTc2OTg2MjE3OX0.7ZwDTA2yC7juvOtzotFadKVyialXHS-yPtxWJwiPZ0Y
+@FRAME_ID = 550e8400-e29b-41d4-a716-446655440010
+### List frames (public)
+GET {{BASE_URL}}/api/photos/frames/available
+
+### Create frame
+POST {{BASE_URL}}/api/frames
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+{
+  "name": "2x2 Grid Frame",
+  "description": "Created via REST Client",
+  "rows": 2,
+  "cols": 2,
+  "photoWidth": 300,
+  "photoHeight": 300,
+  "padding": 20,
+  "backgroundColor": "#ffffff",
+  "message": "Smile!"
+}
+
+### Get frame by id
+GET {{BASE_URL}}/api/frames/{{FRAME_ID}}
+Authorization: Bearer {{TOKEN}}
+
+### Update frame
+PUT {{BASE_URL}}/api/frames/{{FRAME_ID}}
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+{
+  "name": "Updated Frame Name",
+  "description": "Updated via REST Client",
+  "rows": 3,
+  "cols": 1,
+  "photoWidth": 250,
+  "photoHeight": 250,
+  "padding": 15,
+  "backgroundColor": "#f0f0f0",
+  "message": "Cheese!"
+}
+
+### Delete frame
+DELETE {{BASE_URL}}/api/frames/{{FRAME_ID}}
+Authorization: Bearer {{TOKEN}}
+
+# Note: if your API uses different paths for frames, update these requests accordingly.

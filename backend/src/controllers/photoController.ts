@@ -1,68 +1,57 @@
 import QRCode from 'qrcode';
+import { composePhotoBooth } from '../services/photoBooth.js';
+import { listFrames } from '../services/frameService.js';
+import * as photoService from '../services/photoService.js';
 
 // Armazenar tokens com expiração (5 minutos = 300000 ms)
 const QR_TOKEN_EXPIRATION = 5 * 60 * 1000; // 5 minutos em milissegundos
 const qrTokenStore = new Map<string, { photoId: string; expiresAt: number }>();
 
-// Dados estáticos
-const mockPhotos = [
-  {
-    id: '1',
-    projectId: '1',
-    fileName: 'photo1.jpg',
-    filePath: '/uploads/photo1.jpg',
-    frame: 'classic',
-    createdAt: new Date('2024-01-15'),
-  },
-  {
-    id: '2',
-    projectId: '1',
-    fileName: 'photo2.jpg',
-    filePath: '/uploads/photo2.jpg',
-    frame: 'modern',
-    qrToken: 'qr-token-abc123',
-    createdAt: new Date('2024-01-15'),
-  },
-  {
-    id: '3',
-    projectId: '2',
-    fileName: 'photo3.jpg',
-    filePath: '/uploads/photo3.jpg',
-    frame: 'vintage',
-    createdAt: new Date('2024-01-20'),
-  },
-];
+export const getPhotos = async (req: any, res: any) => {
+  try {
+    const { projectId } = req.params;
+    const photos = await photoService.getPhotosByProjectId(projectId);
 
-export const getPhotos = (req: any, res: any) => {
-  const { projectId } = req.params;
-
-  const photos = mockPhotos.filter(p => p.projectId === projectId);
-
-  res.json({
-    success: true,
-    data: photos,
-    total: photos.length,
-  });
-};
-
-export const getPhoto = (req: any, res: any) => {
-  const { id } = req.params;
-
-  const photo = mockPhotos.find(p => p.id === id);
-  if (!photo) {
-    return res.status(404).json({
+    res.json({
+      success: true,
+      data: photos,
+      total: photos.length,
+    });
+  } catch (err: any) {
+    res.status(500).json({
       success: false,
-      message: 'Photo not found',
+      message: 'Error fetching photos',
+      error: err.message,
     });
   }
-
-  res.json({
-    success: true,
-    data: photo,
-  });
 };
 
-export const getPhotoByQRCode = (req: any, res: any) => {
+export const getPhoto = async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+    const photo = await photoService.getPhotoById(id);
+
+    if (!photo) {
+      return res.status(404).json({
+        success: false,
+        message: 'Photo not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      data: photo,
+    });
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching photo',
+      error: err.message,
+    });
+  }
+};
+
+export const getPhotoByQRCode = async (req: any, res: any) => {
   const { token } = req.params;
 
   // Verificar se o token existe no store
@@ -85,110 +74,201 @@ export const getPhotoByQRCode = (req: any, res: any) => {
   }
 
   // Encontrar a foto pelo ID armazenado no token
-  const photo = mockPhotos.find(p => p.id === tokenData.photoId);
-  
-  if (!photo) {
-    return res.status(404).json({
+  try {
+    const photo = await photoService.getPhotoById(tokenData.photoId);
+    
+    if (!photo) {
+      return res.status(404).json({
+        success: false,
+        message: 'Photo not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      data: photo,
+    });
+  } catch (err: any) {
+    res.status(500).json({
       success: false,
-      message: 'Photo not found',
+      message: 'Error fetching photo',
+      error: err.message,
     });
   }
-
-  res.json({
-    success: true,
-    data: photo,
-  });
 };
 
-export const savePhoto = (req: any, res: any) => {
-  const { projectId, fileName, frame } = req.body;
+export const savePhoto = async (req: any, res: any) => {
+  try {
+    const { projectId } = req.body;
 
-  const newPhoto = {
-    id: String(mockPhotos.length + 1),
-    projectId,
-    fileName: fileName || 'photo-' + Date.now() + '.jpg',
-    filePath: '/uploads/' + (fileName || 'photo-' + Date.now() + '.jpg'),
-    frame: frame || 'default',
-    qrToken: 'qr-token-' + Date.now(),
-    createdAt: new Date(),
-  };
+    if (!projectId) {
+      return res.status(400).json({
+        success: false,
+        message: 'projectId is required',
+      });
+    }
 
-  mockPhotos.push(newPhoto);
+    // Se arquivo foi enviado via multipart
+    if (req.file) {
+      const filename = req.file.filename;
 
-  res.status(201).json({
-    success: true,
-    message: 'Photo saved successfully',
-    data: newPhoto,
-  });
+      const photo = await photoService.createPhoto({
+        projectId,
+        fileName: filename,
+      });
+
+      res.status(201).json({
+        success: true,
+        message: 'Photo uploaded and saved successfully',
+        data: photo,
+      });
+    } else {
+      // Fallback: aceitar filename no body
+      const filename = req.body.filename || req.body.fileName;
+
+      if (!filename) {
+        return res.status(400).json({
+          success: false,
+          message: 'Either upload a file or provide filename in body',
+        });
+      }
+
+      const photo = await photoService.createPhoto({
+        projectId,
+        fileName: filename,
+      });
+
+      res.status(201).json({
+        success: true,
+        message: 'Photo saved successfully',
+        data: photo,
+      });
+    }
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: 'Error saving photo',
+      error: err.message,
+    });
+  }
 };
 
-export const deletePhoto = (req: any, res: any) => {
+export const deletePhoto = async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+    const success = await photoService.deletePhoto(id);
+
+    if (!success) {
+      return res.status(404).json({
+        success: false,
+        message: 'Photo not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Photo deleted successfully',
+    });
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting photo',
+      error: err.message,
+    });
+  }
+};
+
+export const framePhoto = async (req: any, res: any) => {
   const { id } = req.params;
+  const { frameId, photoUrls, backgroundColor } = req.body;
 
-  const photoIndex = mockPhotos.findIndex(p => p.id === id);
-  if (photoIndex === -1) {
-    return res.status(404).json({
+  if (!frameId) {
+    return res.status(400).json({
       success: false,
-      message: 'Photo not found',
+      message: 'frameId is required',
     });
   }
 
-  const deletedPhoto = mockPhotos.splice(photoIndex, 1)[0];
+  if (!photoUrls || !Array.isArray(photoUrls) || photoUrls.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'photoUrls array is required and must contain at least one photo URL',
+    });
+  }
 
-  res.json({
-    success: true,
-    message: 'Photo deleted successfully',
-    data: deletedPhoto,
-  });
+  try {
+    // Compor o photo booth
+    const composedImage = await composePhotoBooth(
+      photoUrls,
+      frameId,
+      backgroundColor || '#FFFFFF'
+    );
+
+    // Converter para base64
+    const base64Image = composedImage.toString('base64');
+    const imageDataUrl = `data:image/png;base64,${base64Image}`;
+
+    res.json({
+      success: true,
+      message: 'Photo booth composed successfully',
+      data: {
+        photoBoothId: `photobooth-${id}-${Date.now()}`,
+        frameId: frameId,
+        composedImage: imageDataUrl,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error composing photo booth',
+      error: (error as any).message,
+    });
+  }
 };
 
-export const framePhoto = (req: any, res: any) => {
-  const { id } = req.params;
-  const { tipo_de_frame } = req.body;
-
-  const photo = mockPhotos.find(p => p.id === id);
-  if (!photo) {
-    return res.status(404).json({
+export const getAvailableFrames = async (req: any, res: any) => {
+  try {
+    const frames = await listFrames();
+    res.json({
+      success: true,
+      message: 'Available frames for photo booth',
+      data: frames,
+    });
+  } catch (err: any) {
+    res.status(500).json({
       success: false,
-      message: 'Photo not found',
+      message: 'Error fetching frames',
+      error: err.message,
     });
   }
-
-  photo.frame = tipo_de_frame || 'default';
-
-  res.json({
-    success: true,
-    message: 'Frame applied successfully',
-    data: photo,
-  });
 };
 
 export const generatePhotoQRCode = async (req: any, res: any) => {
   const { id } = req.params;
   const baseUrl = process.env.BASE_URL || 'http://localhost:3001';
 
-  const photo = mockPhotos.find(p => p.id === id);
-  if (!photo) {
-    return res.status(404).json({
-      success: false,
-      message: 'Photo not found',
-    });
-  }
-
-  // Gerar um token único com expiração de 5 minutos
-  const qrToken = 'qr-token-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-  const expiresAt = Date.now() + QR_TOKEN_EXPIRATION;
-
-  // Armazenar o token com o ID da foto e tempo de expiração
-  qrTokenStore.set(qrToken, {
-    photoId: id,
-    expiresAt: expiresAt,
-  });
-
-  // Criar URL do QR code (link para acessar a foto via token)
-  const qrUrl = `${baseUrl}/api/photos/qrcode/${qrToken}`;
-
   try {
+    const photo = await photoService.getPhotoById(id);
+    if (!photo) {
+      return res.status(404).json({
+        success: false,
+        message: 'Photo not found',
+      });
+    }
+
+    // Gerar um token único com expiração de 5 minutos
+    const qrToken = 'qr-token-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    const expiresAt = Date.now() + QR_TOKEN_EXPIRATION;
+
+    // Armazenar o token com o ID da foto e tempo de expiração
+    qrTokenStore.set(qrToken, {
+      photoId: id,
+      expiresAt: expiresAt,
+    });
+
+    // Criar URL do QR code (link para acessar a foto via token)
+    const qrUrl = `${baseUrl}/api/photos/qrcode/${qrToken}`;
+
     // Gerar QR code como Data URL (base64)
     const qrCodeDataUrl = await QRCode.toDataURL(qrUrl);
 

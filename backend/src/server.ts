@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { projectRoutes } from './routes/projectRoutes.js';
 import { photoRoutes } from './routes/photoRoutes.js';
 import { authRoutes } from './routes/authRoutes.js';
+import { testConnection } from './services/connectionTest.js';
 
 dotenv.config();
 
@@ -25,6 +26,16 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Backend is running' });
 });
 
+// Database connection test
+app.get('/api/test-connection', async (req, res) => {
+  try {
+    const result = await testConnection();
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // Error handling middleware
 app.use((err: any, req: any, res: any, next: any) => {
   console.error(err.stack);
@@ -35,3 +46,4 @@ app.use((err: any, req: any, res: any, next: any) => {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
