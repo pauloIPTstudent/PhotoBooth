@@ -6,12 +6,14 @@ import { Edit, Trash2 } from 'lucide-react';
 interface Frame {
   id: string;
   name: string;
+  description?: string;
   rows: number;
   cols: number;
   photoWidth: number;
   photoHeight: number;
-  spacing: number;
-  description?: string;
+  padding: number; // Mapeado de 'padding' no backend
+  backgroundColor: string;
+  message?: string;
 }
 
 export const FramesTable = ({ frames = [], onEdit = () => {}, onDelete = () => {} }: { frames?: Frame[]; onEdit?: (f: Frame) => void; onDelete?: (id: string) => void }) => {
@@ -34,7 +36,7 @@ export const FramesTable = ({ frames = [], onEdit = () => {}, onDelete = () => {
           <div className="mt-3 text-xs text-gray-700">
             <div>Grid: {f.rows} x {f.cols}</div>
             <div>Photo: {f.photoWidth}×{f.photoHeight}</div>
-            <div>Spacing: {f.spacing}px</div>
+            <div>Padding: {f.padding}px</div>
           </div>
         </div>
       ))}

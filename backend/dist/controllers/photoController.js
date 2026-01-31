@@ -3,6 +3,7 @@ import { composePhotoBooth } from '../services/photoBooth.js';
 import { listFrames } from '../services/frameService.js';
 import * as photoService from '../services/photoService.js';
 import path from 'path';
+import { unlink } from 'node:fs/promises';
 import fs from 'fs';
 // Armazenar tokens com expiração (5 minutos = 300000 ms)
 const QR_TOKEN_EXPIRATION = 5 * 60 * 1000; // 5 minutos em milissegundos
@@ -167,11 +168,26 @@ export const savePhoto = async (req, res) => {
 export const deletePhoto = async (req, res) => {
     try {
         const { id } = req.params;
+        const photo = await photoService.getPhotoById(id);
+        if (!photo) {
+            return res.status(404).json({ success: false, message: 'Photo not found' });
+        }
+        // 2. Caminho absoluto do ficheiro (ajuste 'uploads' para a sua pasta real)
+        const filePath = path.join(process.cwd(), 'uploads', photo.projectId, photo.fileName);
+        // 3. Deletar o ficheiro físico
+        try {
+            await unlink(filePath);
+            console.log(`Arquivo deletado: ${filePath}`);
+        }
+        catch (err) {
+            // Se o ficheiro não existir no disco, apenas logamos e seguimos para limpar o banco
+            console.warn(`Aviso: Ficheiro não encontrado no disco: ${filePath}`);
+        }
         const success = await photoService.deletePhoto(id);
         if (!success) {
             return res.status(404).json({
                 success: false,
-                message: 'Photo not found',
+                message: `Photo not found at ${filePath}`,
             });
         }
         res.json({
@@ -192,6 +208,11 @@ export const framePhoto = async (req, res) => {
     const { frameId } = req.body;
     // No Express com Multer, os arquivos ficam em req.files
     const files = req.files;
+    /*console.log('--- DEBUG BACKEND ---');
+    console.log('Quantidade de arquivos:', files?.length);
+    if (files) {
+      files.forEach((f, i) => console.log(`Arquivo ${i}: fieldname=${f.fieldname}, size=${f.size} bytes`));
+    }*/
     if (!frameId) {
         return res.status(400).json({
             success: false,

@@ -1,39 +1,76 @@
-import QRCode from 'qrcode';
-import { composePhotoBooth } from '../services/photoBooth.js';
-import { listFrames } from '../services/frameService.js';
-import * as photoService from '../services/photoService.js';
-import path from 'path';
-import fs from 'fs';
+import * as frameService from '../services/frameService.js';
 
 
 
-export const getFrames = async (req: any, res: any) => {
-
-};
-
-export const getPhoto = async (req: any, res: any) => {
+export const getFrameByIdController = async (req: any, res: any) => {
   try {
-    const { id } = req.params;
-    const photo = await photoService.getPhotoById(id);
-
-    if (!photo) {
-      return res.status(404).json({
-        success: false,
-        message: 'Photo not found',
-      });
-    }
-
-    res.json({
-      success: true,
-      data: photo,
-    });
-  } catch (err: any) {
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching photo',
-      error: err.message,
-    });
-  }
+     const { id } = req.params;
+     const frame = await frameService.getFrameById(id);
+ 
+     res.json({
+       success: true,
+       data: frame,
+     }); 
+   } catch (err: any) {
+     res.status(500).json({
+       success: false,
+       message: 'Error fetching frame',
+       error: err.message,
+     });
+   }
 };
 
+
+export const generateFrame = async (req: any, res: any) => {
+  try {
+     const frame = await frameService.createFrame(req.body);
+ 
+     res.json({
+       success: true,
+       data: frame,
+     }); 
+   } catch (err: any) {
+     res.status(500).json({
+       success: false,
+       message: 'Error fetching frame',
+       error: err.message,
+     });
+   }
+};
+
+export const editFrame = async (req: any, res: any) => {
+  try {
+     const { id } = req.params;
+     const frame = await frameService.updateFrame(id, req.body);
+ 
+     res.json({
+       success: true,
+       data: frame,
+     }); 
+   } catch (err: any) {
+     res.status(500).json({
+       success: false,
+       message: 'Error updating frame',
+       error: err.message,
+     });
+   }
+};
+
+export const deleteFrame = async (req: any, res: any) => {
+  try {
+     const { id } = req.params;
+     const frame = await frameService.deleteFrame(id);
+ 
+     res.json({
+       success: true,
+      message: 'Frame deleted successfully',
+     }); 
+   } catch (err: any) {
+     res.status(500).json({
+       success: false,
+       message: 'Error deleting frame',
+       error: err.message,
+     });
+   }
+}
 

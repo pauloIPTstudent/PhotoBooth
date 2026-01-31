@@ -42,5 +42,12 @@ export const uploadPhoto = multer({
         fileSize: 10 * 1024 * 1024, // 10MB
     },
 });
-export default uploadPhoto;
+export const uploadPhotos = multer({
+    storage: multer.memoryStorage(), // Essencial para existir o file.buffer
+    fileFilter: fileFilter,
+    limits: {
+        fileSize: 10 * 1024 * 1024, // 10MB
+    },
+});
+export default { uploadPhoto, uploadPhotos };
 //# sourceMappingURL=uploadMiddleware.js.map

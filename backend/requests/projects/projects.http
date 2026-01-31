@@ -44,4 +44,3 @@ Authorization: Bearer {{TOKEN}}
 
 ### Get project style
 GET {{BASE_URL}}/api/projects/{{PROJECT_ID}}/style
-Authorization: Bearer {{TOKEN}}

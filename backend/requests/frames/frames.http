@@ -1,7 +1,7 @@
 # Frames endpoints
 @BASE_URL = http://localhost:3001
 @TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE3Njk3NzU3NzksImV4cCI6MTc2OTg2MjE3OX0.7ZwDTA2yC7juvOtzotFadKVyialXHS-yPtxWJwiPZ0Y
-@FRAME_ID = 550e8400-e29b-41d4-a716-446655440010
+@FRAME_ID = 106aee8b-36ff-4868-a169-40b16394d04a
 ### List frames (public)
 GET {{BASE_URL}}/api/photos/frames/available
  

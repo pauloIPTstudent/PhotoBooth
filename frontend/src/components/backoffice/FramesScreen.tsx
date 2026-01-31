@@ -57,17 +57,53 @@ export const FramesScreen = () => {
   };
 
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.name.trim()) return;
-    if (editingId) {
-      setFrames(frames.map(f => f.id === editingId ? { ...f, ...form } : f));
-    } else {
-      const newFrame = { id: Date.now().toString(), ...form };
-      setFrames([newFrame, ...frames]);
+
+    const token = localStorage.getItem('token');
+    const isEditing = !!editingId;
+    
+    // Configuração da URL e Método baseada no estado de edição
+    const url = isEditing 
+      ? `http://localhost:3001/api/frames/${editingId}` 
+      : 'http://localhost:3001/api/frames';
+    
+    const method = isEditing ? 'PUT' : 'POST';
+
+    try {
+      const res = await fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(form),
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        
+        if (isEditing) {
+          setFrames(frames.map(f => f.id === editingId ? result.data : f));
+        } else {
+          setFrames([result.data, ...frames]);
+        }
+
+        // Reset do formulário
+        setForm({ 
+          name: '', rows: 2, cols: 2, photoWidth: 200, 
+          photoHeight: 200, padding: 8, description: '', 
+          backgroundColor: '#ffffff', message: '' 
+        });
+        setEditingId(null);
+        setShowForm(false);
+      } else {
+        const error = await res.json();
+        alert(`Erro ao salvar: ${error.message}`);
+      }
+    } catch (err) {
+      console.error("Erro na requisição:", err);
     }
-    setForm({ name: '', rows: 2, cols: 2, photoWidth: 200, photoHeight: 200, padding: 8, description: '', backgroundColor: '#ffffff', message: '' });
-    setEditingId(null);
-    setShowForm(false);
   };
 
   const handleEdit = (f: any) => {
@@ -76,8 +112,27 @@ export const FramesScreen = () => {
     setShowForm(true);
   };
 
-  const handleDelete = (id: string) => {
-    setFrames(frames.filter(f => f.id !== id));
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Deseja realmente excluir este frame?")) return;
+
+    const token = localStorage.getItem('token');
+
+    try {
+      const res = await fetch(`http://localhost:3001/api/frames/${id}`, {
+        method: 'DELETE',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+
+      if (res.ok) {
+        setFrames(frames.filter(f => f.id !== id));
+      } else {
+        alert("Erro ao excluir o frame do servidor.");
+      }
+    } catch (err) {
+      console.error("Erro ao deletar:", err);
+    }
   };
 
   return (
@@ -87,7 +142,7 @@ export const FramesScreen = () => {
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Frames</h1>
           <p className="text-xs md:text-sm text-gray-600 mt-1">Gerencie frames e layouts de fotos</p>
         </div>
-        <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ name: '', rows: 2, cols: 2, photoWidth: 200, photoHeight: 200, spacing: 8, description: '' }); }} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg font-semibold transition-colors text-sm md:text-base">
+        <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ name: '', rows: 2, cols: 2, photoWidth: 200, photoHeight: 200, padding: 8, description: '', backgroundColor: '#ffffff', message: '' }); }} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg font-semibold transition-colors text-sm md:text-base">
           <Plus size={18} />
           Novo Frame
         </button>
@@ -123,7 +178,7 @@ export const FramesScreen = () => {
             </div>
             <div>
               <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">Spacing (px)</label>
-              <input type="number" value={form.spacing} onChange={(e) => setForm({ ...form, spacing: parseInt(e.target.value || '0') })} className="w-full px-3 py-2 border rounded" />
+              <input type="number" value={form.padding} onChange={(e) => setForm({ ...form, padding: parseInt(e.target.value || '0') })} className="w-full px-3 py-2 border rounded" />
             </div>
           </div>
           <div className="flex gap-2 mt-4">

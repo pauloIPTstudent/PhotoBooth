@@ -4,8 +4,8 @@ import dotenv from 'dotenv';
 import { projectRoutes } from './routes/projectRoutes.js';
 import { photoRoutes } from './routes/photoRoutes.js';
 import { authRoutes } from './routes/authRoutes.js';
+import { frameRoutes } from './routes/frameRoutes.js';
 import { testConnection } from './services/connectionTest.js';
-
 dotenv.config();
 
 const app = express();
@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/photos', photoRoutes);
-
+app.use('/api/frames', frameRoutes); // Assuming frameRoutes are included in photoRoutes
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Backend is running' });

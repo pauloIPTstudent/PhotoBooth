@@ -12,8 +12,7 @@ import {
   downloadPhotoByToken,
 } from '../controllers/photoController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
-import { uploadPhoto } from '../middleware/uploadMiddleware.js';
-
+import { uploadPhoto, uploadPhotos } from '../middleware/uploadMiddleware.js';
 export const photoRoutes = express.Router();
 
 // Rotas públicas (sem autenticação)
@@ -33,7 +32,7 @@ photoRoutes.get('/:id/file', getPhotoFile);
 photoRoutes.post('/:id/generate-qrcode', generatePhotoQRCode);
 
 // PUT /api/photos/:id/frame - Montar photo booth (público)
-photoRoutes.put('/:id/frame', framePhoto);
+photoRoutes.put('/:id/frame',uploadPhotos.array('photo'), framePhoto);
 
 // GET /api/photos/frames/available - Listar frames disponíveis (público)
 photoRoutes.get('/frames/available', getAvailableFrames);

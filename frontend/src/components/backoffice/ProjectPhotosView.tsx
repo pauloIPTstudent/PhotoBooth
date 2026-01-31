@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ImageIcon, Loader2 } from 'lucide-react';
+import { ImageIcon, Loader2, Trash2 } from 'lucide-react';
 
 interface Photo {
   id: string;
@@ -12,7 +12,8 @@ interface Photo {
 export const ProjectPhotosView = ({ projectId }: { projectId: string }) => {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  
   useEffect(() => {
     const fetchPhotos = async () => {
       try {
@@ -36,6 +37,34 @@ export const ProjectPhotosView = ({ projectId }: { projectId: string }) => {
 
     fetchPhotos();
   }, [projectId]);
+
+
+  const handleDeletePhoto = async (photoId: string) => {
+    if (!window.confirm("Tem certeza que deseja apagar esta foto permanentemente?")) return;
+
+    setDeletingId(photoId);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:3001/api/photos/${photoId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        // Remove a foto da lista localmente para resposta instantânea
+        setPhotos((prev) => prev.filter((p) => p.id !== photoId));
+      } else {
+        alert("Erro ao deletar a foto no servidor.");
+      }
+    } catch (err) {
+      console.error("Erro ao deletar foto:", err);
+      alert("Erro de conexão ao tentar deletar.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -61,7 +90,23 @@ export const ProjectPhotosView = ({ projectId }: { projectId: string }) => {
                 alt="Foto do projeto"
                 className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
               />
+              {/* Overlay de Deleção */}
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <button
+                  onClick={() => handleDeletePhoto(photo.id)}
+                  disabled={deletingId === photo.id}
+                  className="bg-red-500 hover:bg-red-600 text-white p-3 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300"
+                  title="Eliminar Foto"
+                >
+                  {deletingId === photo.id ? (
+                    <Loader2 className="animate-spin" size={20} />
+                  ) : (
+                    <Trash2 size={20} />
+                  )}
+                </button>
+              </div>
             </div>
+            
           ))}
         </div>
       )}

@@ -1,7 +1,7 @@
 import express from 'express';
 import { getPhotos, getPhoto, getPhotoByQRCode, savePhoto, deletePhoto, framePhoto, generatePhotoQRCode, getAvailableFrames, getPhotoFile, downloadPhotoByToken, } from '../controllers/photoController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
-import { uploadPhoto } from '../middleware/uploadMiddleware.js';
+import { uploadPhoto, uploadPhotos } from '../middleware/uploadMiddleware.js';
 export const photoRoutes = express.Router();
 // Rotas públicas (sem autenticação)
 // GET /api/photos/qrcode/:token
@@ -15,7 +15,7 @@ photoRoutes.get('/:id/file', getPhotoFile);
 // POST /api/photos/:id/generate-qrcode - Gerar QR code (público)
 photoRoutes.post('/:id/generate-qrcode', generatePhotoQRCode);
 // PUT /api/photos/:id/frame - Montar photo booth (público)
-photoRoutes.put('/:id/frame', framePhoto);
+photoRoutes.put('/:id/frame', uploadPhotos.array('photo'), framePhoto);
 // GET /api/photos/frames/available - Listar frames disponíveis (público)
 photoRoutes.get('/frames/available', getAvailableFrames);
 // Aplicar middleware de autenticação para os demais endpoints
