@@ -65,6 +65,39 @@ export const ProjectForm = ({ initialData, isEditing, onSave, onCancel }: Projec
     onSave(formData);
   };
 
+  const handleImageUpload = async (file: File) => {
+  if (!isEditing) {
+    alert("Salve o projeto primeiro antes de adicionar uma imagem de fundo.");
+    return;
+  }
+
+  const token = localStorage.getItem('token');
+  const formDataUpload = new FormData();
+  formDataUpload.append('bg_image', file); // 'bg_image' deve ser o nome esperado pelo Multer no backend
+
+  try {
+    setIsLoading(true);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/projects/${formData.id}/bg`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formDataUpload,
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      // Atualiza o estado com o caminho retornado pelo backend
+      setFormData({ ...formData, bg_image: result.path || result.data.bg_image });
+      alert("Imagem de fundo atualizada!");
+    }
+  } catch (err) {
+    console.error("Erro no upload:", err);
+    alert("Falha ao carregar imagem.");
+  } finally {
+    setIsLoading(false);
+  }
+};
   return (
     <div className="bg-white rounded-lg shadow p-4 md:p-6 mb-6 border border-gray-100">
       <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-4">
@@ -172,7 +205,9 @@ export const ProjectForm = ({ initialData, isEditing, onSave, onCancel }: Projec
                           accept="image/*"
                           onChange={(e) => {
                             const file = e.target.files?.[0];
-                            if (file) setFormData({ ...formData, backgroundImage: file });
+                            if (file) {
+                              handleImageUpload(file);
+                            }
                           }} 
                         />
                       </label>

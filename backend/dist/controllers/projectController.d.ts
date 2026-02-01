@@ -5,4 +5,6 @@ export declare const editProject: (req: Request, res: Response) => Promise<Respo
 export declare const deleteProject: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
 export declare const openProjectPage: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
 export declare const getProjectStyle: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const uploadProjectBg: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const serveProjectBackground: (req: Request, res: Response) => Promise<void | Response<any, Record<string, any>>>;
 //# sourceMappingURL=projectController.d.ts.map

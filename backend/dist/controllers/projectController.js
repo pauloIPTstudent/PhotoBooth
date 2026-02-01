@@ -1,3 +1,5 @@
+import path from 'path';
+import fs from 'fs';
 import * as projectService from '../services/projectService.js';
 import { syncProjectFrames } from '../services/frameService.js';
 export const getProjects = async (req, res) => {
@@ -83,6 +85,43 @@ export const getProjectStyle = async (req, res) => {
     }
     catch (err) {
         res.status(500).json({ success: false, message: err.message || 'Failed to fetch project style' });
+    }
+};
+export const uploadProjectBg = async (req, res) => {
+    try {
+        const file = req.file;
+        if (!file) {
+            return res.status(400).json({ success: false, message: 'Nenhuma imagem enviada.' });
+        }
+        // Retorna o caminho simplificado
+        res.json({
+            success: true,
+            filename: file.filename,
+            path: `uploads/bg/${file.filename}`
+        });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: 'Erro no upload' });
+    }
+};
+export const serveProjectBackground = async (req, res) => {
+    try {
+        const { projectId } = req.params;
+        // 1. Busca o projeto no banco para pegar o nome do arquivo (ex: id.jpg)
+        const project = await projectService.getProjectById(projectId);
+        if (!project || !project.bg_image) {
+            return res.status(404).json({ message: 'Projeto ou imagem de fundo não encontrados.' });
+        }
+        const fileName = path.basename(project.bg_image);
+        const filePath = path.join(process.cwd(), 'uploads', 'bg', fileName);
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ success: false, message: 'File not found on disk' });
+        }
+        return res.sendFile(filePath);
+    }
+    catch (error) {
+        console.error('Erro ao buscar imagem:', error);
+        return res.status(500).json({ message: 'Erro interno ao buscar a imagem.' });
     }
 };
 //# sourceMappingURL=projectController.js.map
