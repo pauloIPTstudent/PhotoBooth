@@ -26,6 +26,77 @@ export async function listFrames() {
         throw err;
     }
 }
+export async function getFramesByProjectId(projectId) {
+    try {
+        const query = `
+      SELECT f.* FROM frames f
+      JOIN project_frames pf ON f.id = pf.frame_id
+      WHERE pf.project_id = $1
+    `;
+        const result = await pool.query(query, [projectId]);
+        return result.rows.map(mapRow);
+    }
+    catch (err) {
+        console.error('Error getting frames by project ID:', err);
+        throw err;
+    }
+}
+// Adicionar frame ao projeto
+export async function addFrameToProject(projectId, frameId) {
+    try {
+        const query = `
+      INSERT INTO project_frames (project_id, frame_id)
+      VALUES ($1, $2)
+      ON CONFLICT (project_id, frame_id) DO NOTHING
+    `;
+        await pool.query(query, [projectId, frameId]);
+    }
+    catch (err) {
+        console.error('Error adding frame to project:', err);
+        throw err;
+    }
+}
+// No seu projectService ou frameService
+export async function syncProjectFrames(projectId, frameIds) {
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        // 1. Remove associações antigas
+        await client.query('DELETE FROM project_frames WHERE project_id = $1', [projectId]);
+        // 2. Insere as novas (se houver)
+        if (frameIds && frameIds.length > 0) {
+            const query = `
+        INSERT INTO project_frames (project_id, frame_id)
+        SELECT $1, unnest($2::uuid[])
+        ON CONFLICT (project_id, frame_id) DO NOTHING
+      `;
+            await client.query(query, [projectId, frameIds]);
+        }
+        await client.query('COMMIT');
+    }
+    catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+    }
+    finally {
+        client.release();
+    }
+}
+;
+// Remover frame do projeto
+export async function removeFrameFromProject(projectId, frameId) {
+    try {
+        const query = `
+      DELETE FROM project_frames 
+      WHERE project_id = $1 AND frame_id = $2
+    `;
+        await pool.query(query, [projectId, frameId]);
+    }
+    catch (err) {
+        console.error('Error removing frame from project:', err);
+        throw err;
+    }
+}
 export async function createFrame(payload) {
     try {
         const id = uuidv4();

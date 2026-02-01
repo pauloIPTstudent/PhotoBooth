@@ -6,11 +6,14 @@ import { CaptureScreen } from './CaptureScreen';
 import { FrameSelectionScreen } from './FrameSelectionScreen';
 import { PreviewScreen } from './PreviewScreen';
 import { QRCodeScreen } from './QRCodeScreen';
+import { StartScreen } from './StartScreen';
 
-export type AppScreen = 'capture' | 'frame' | 'preview' | 'qrcode';
+export type AppScreen = 'capture' | 'frame' | 'preview' | 'qrcode' | 'start';
 
 
 export interface ProjectStyle {
+  name: string;
+  description: string;
   theme: string;
   primary: string;
   secondary: string;
@@ -26,11 +29,12 @@ export interface FrameData {
 }
 
 export const AppContainer = () => {
-  const [currentScreen, setCurrentScreen] = useState<AppScreen>('frame');
+  const [currentScreen, setCurrentScreen] = useState<AppScreen>('start');
   const [projectId, setProjectId] = useState<string | null>(null);
   const [style, setStyle] = useState<ProjectStyle | null>(null);
   const [selectedFrame, setSelectedFrame] = useState<FrameData | null>(null);
   const [capturedPhotos, setCapturedPhotos] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   const searchParams = useSearchParams();
 
@@ -51,11 +55,19 @@ export const AppContainer = () => {
       }
     } catch (err) {
       console.error("Erro ao carregar estilo do projeto:", err);
+    } finally {
+        setIsLoading(false);
     }
   };
 
   const renderScreen = () => {
     switch (currentScreen) {
+      case 'start':
+        return (<StartScreen 
+          projectId={projectId} 
+          projectStyle={style} 
+          onStart={() => setCurrentScreen('frame')} 
+        />);
       case 'frame':
         return (
         <FrameSelectionScreen 
@@ -99,7 +111,15 @@ export const AppContainer = () => {
         />);
     }
   };
-
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen gap-2">
+        <div className="w-3 h-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+        <div className="w-3 h-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+        <div className="w-3 h-3 bg-black rounded-full animate-bounce"></div>     
+      </div>
+    );
+  }
   return (
     <div className="app-container">
       {/* Indicador de página (opcional) */}

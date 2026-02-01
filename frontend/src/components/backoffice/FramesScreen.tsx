@@ -3,8 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { FramesTable } from './FramesTable';
+import { FrameForm } from './FrameForm';
 
-interface Frame {
+export interface Frame {
   id: string;
   name: string;
   description?: string;
@@ -16,24 +17,26 @@ interface Frame {
   backgroundColor: string;
   message?: string;
 }
+const emptyForm: Frame = {
+  id: '', // uuid se necessário
+  name: '',
+  description: '',
+  rows: 2,
+  cols: 2,
+  photoWidth: 200,
+  photoHeight: 200,
+  padding: 8,
+  backgroundColor: '#ffffff',
+  message: ''
+};
 
 export const FramesScreen = () => {
   const [frames, setFrames] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [selectedFrameData, setSelectedFrameData] = useState<Frame>(emptyForm);
 
-  const [form, setForm] = useState({
-      name: '',
-      description: '',
-      rows: 2,
-      cols: 2,
-      photoWidth: 200,
-      photoHeight: 200,
-      padding: 8,
-      backgroundColor: '#ffffff',
-      message: ''
-    });
   
   // 1. Busca as frames ao montar o componente
   useEffect(() => {
@@ -57,58 +60,36 @@ export const FramesScreen = () => {
   };
 
 
-  const handleSave = async () => {
-    if (!form.name.trim()) return;
-
+  const handleSave = async (formData: any) => { // Recebe os dados do componente filho
     const token = localStorage.getItem('token');
     const isEditing = !!editingId;
-    
-    // Configuração da URL e Método baseada no estado de edição
     const url = isEditing 
       ? `http://localhost:3001/api/frames/${editingId}` 
       : 'http://localhost:3001/api/frames';
     
-    const method = isEditing ? 'PUT' : 'POST';
-
     try {
       const res = await fetch(url, {
-        method: method,
+        method: isEditing ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify(formData), // Usa o formData vindo do filho
       });
 
       if (res.ok) {
-        const result = await res.json();
-        
-        if (isEditing) {
-          setFrames(frames.map(f => f.id === editingId ? result.data : f));
-        } else {
-          setFrames([result.data, ...frames]);
-        }
-
-        // Reset do formulário
-        setForm({ 
-          name: '', rows: 2, cols: 2, photoWidth: 200, 
-          photoHeight: 200, padding: 8, description: '', 
-          backgroundColor: '#ffffff', message: '' 
-        });
-        setEditingId(null);
+        fetchFrames(); // Recarrega a lista para garantir sincronia
         setShowForm(false);
-      } else {
-        const error = await res.json();
-        alert(`Erro ao salvar: ${error.message}`);
+        setEditingId(null);
       }
     } catch (err) {
-      console.error("Erro na requisição:", err);
+      console.error(err);
     }
-  };
+  }
 
-  const handleEdit = (f: any) => {
+  const handleEdit = (f: Frame) => {
     setEditingId(f.id);
-    setForm({ name: f.name, rows: f.rows, cols: f.cols, photoWidth: f.photoWidth, photoHeight: f.photoHeight, padding: f.padding, description: f.description, backgroundColor: f.backgroundColor, message: f.message });
+    setSelectedFrameData(f); // ATUALIZA OS DADOS QUE VÃO PARA O FILHO
     setShowForm(true);
   };
 
@@ -142,50 +123,19 @@ export const FramesScreen = () => {
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Frames</h1>
           <p className="text-xs md:text-sm text-gray-600 mt-1">Gerencie frames e layouts de fotos</p>
         </div>
-        <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ name: '', rows: 2, cols: 2, photoWidth: 200, photoHeight: 200, padding: 8, description: '', backgroundColor: '#ffffff', message: '' }); }} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg font-semibold transition-colors text-sm md:text-base">
+        <button onClick={() => { setShowForm(!showForm); setEditingId(null); setSelectedFrameData(emptyForm); }} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg font-semibold transition-colors text-sm md:text-base">
           <Plus size={18} />
           Novo Frame
         </button>
       </div>
 
       {showForm && (
-        <div className="bg-white rounded-lg shadow p-4 md:p-6">
-          <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-4">{editingId ? 'Editar Frame' : 'Criar Novo Frame'}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">Nome</label>
-              <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-3 py-2 border rounded" />
-            </div>
-            <div>
-              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">Descrição</label>
-              <input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full px-3 py-2 border rounded" />
-            </div>
-            <div>
-              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">Rows</label>
-              <input type="number" value={form.rows} onChange={(e) => setForm({ ...form, rows: parseInt(e.target.value || '1') })} className="w-full px-3 py-2 border rounded" />
-            </div>
-            <div>
-              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">Cols</label>
-              <input type="number" value={form.cols} onChange={(e) => setForm({ ...form, cols: parseInt(e.target.value || '1') })} className="w-full px-3 py-2 border rounded" />
-            </div>
-            <div>
-              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">Photo Width</label>
-              <input type="number" value={form.photoWidth} onChange={(e) => setForm({ ...form, photoWidth: parseInt(e.target.value || '100') })} className="w-full px-3 py-2 border rounded" />
-            </div>
-            <div>
-              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">Photo Height</label>
-              <input type="number" value={form.photoHeight} onChange={(e) => setForm({ ...form, photoHeight: parseInt(e.target.value || '100') })} className="w-full px-3 py-2 border rounded" />
-            </div>
-            <div>
-              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">Spacing (px)</label>
-              <input type="number" value={form.padding} onChange={(e) => setForm({ ...form, padding: parseInt(e.target.value || '0') })} className="w-full px-3 py-2 border rounded" />
-            </div>
-          </div>
-          <div className="flex gap-2 mt-4">
-            <button onClick={handleSave} className="bg-blue-600 text-white px-4 py-2 rounded">{editingId ? 'Atualizar' : 'Criar'}</button>
-            <button onClick={() => { setShowForm(false); setEditingId(null); }} className="bg-gray-200 px-4 py-2 rounded">Cancelar</button>
-          </div>
-        </div>
+        <FrameForm 
+          initialData={selectedFrameData}
+          isEditing={!!editingId}
+          onSave={handleSave}
+          onCancel={() => setShowForm(false)}
+        />
       )}
 
       <FramesTable frames={frames} onEdit={handleEdit} onDelete={handleDelete} />

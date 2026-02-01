@@ -47,9 +47,7 @@ export const FrameSelectionScreen = ({ projectId, projectStyle, onConfirm }: Fra
       } catch (error) {
         console.error("Erro ao carregar frames:", error);
       } finally {
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 500);
+        setIsLoading(false);
       }
     };
 

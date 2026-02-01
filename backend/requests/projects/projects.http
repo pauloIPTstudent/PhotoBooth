@@ -1,6 +1,6 @@
 # Projects endpoints
 @BASE_URL = http://localhost:3001
-@TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE3Njk3NzU3NzksImV4cCI6MTc2OTg2MjE3OX0.7ZwDTA2yC7juvOtzotFadKVyialXHS-yPtxWJwiPZ0Y
+@TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE3Njk5MDU3NjMsImV4cCI6MTc2OTk5MjE2M30.XJWbBq4FJ1t6IQ5YfDaSRNF4SjBOHSVXeADRlBtfrYw
 @PROJECT_ID = 3fee839a-9d8b-42e4-aeed-e2862648066c
 ### List projects
 GET {{BASE_URL}}/api/projects?page=1&filter=
@@ -21,7 +21,7 @@ Authorization: Bearer {{TOKEN}}
 }
 
 ### Get project by id
-GET {{BASE_URL}}/api/projects/{{PROJECT_ID}}
+GET {{BASE_URL}}/api/projects/{{PROJECT_ID}}/open
 Authorization: Bearer {{TOKEN}}
 
 ### Update project

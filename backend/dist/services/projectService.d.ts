@@ -8,6 +8,8 @@ export declare function getProjectById(id: string): Promise<Project>;
 export declare function updateProject(id: string, payload: Partial<Project>): Promise<Project>;
 export declare function deleteProjectById(id: string): Promise<Project>;
 export declare function getProjectStyle(id: string): Promise<{
+    name: string;
+    description: string;
     theme: string;
     primary: string;
     secondary: string;

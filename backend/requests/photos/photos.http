@@ -1,6 +1,6 @@
 # Photos endpoints
 @BASE_URL = http://localhost:3001
-@TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE3Njk3NzU3NzksImV4cCI6MTc2OTg2MjE3OX0.7ZwDTA2yC7juvOtzotFadKVyialXHS-yPtxWJwiPZ0Y
+@TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE3Njk5MDc0NTgsImV4cCI6MTc2OTk5Mzg1OH0.7Xk3kmEAwLwlZMmQeDiTwB8voNDa6OiW8-GqVYqpnkU
 @QR_TOKEN = qr-token-1769785321862-4wa8xyebc
 @PROJECT_ID = 3fee839a-9d8b-42e4-aeed-e2862648066c
 @PHOTO_ID = e36b7ca2-394d-4d3b-b748-924b7170bd6a
@@ -31,6 +31,10 @@ Authorization: Bearer {{QR_TOKEN}}
 
 ### Delete photo
 DELETE {{BASE_URL}}/api/photos/{{PHOTO_ID}}
+Authorization: Bearer {{TOKEN}}
+
+### Delete all projectid photos
+DELETE {{BASE_URL}}/api/photos/all/{{PROJECT_ID}}
 Authorization: Bearer {{TOKEN}}
 
 ### Generate QR for photo

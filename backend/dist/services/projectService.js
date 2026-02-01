@@ -140,6 +140,8 @@ export async function getProjectStyle(id) {
         if (!p)
             return null;
         return {
+            name: p.name,
+            description: p.description,
             theme: p.theme,
             primary: p.primary,
             secondary: p.secondary,

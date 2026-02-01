@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import * as projectService from '../services/projectService.js';
-
+import {syncProjectFrames} from '../services/frameService.js';
 export const getProjects = async (req: Request, res: Response) => {
   try {
     const { page = '1', filter = '' } = req.query as any;
@@ -20,12 +20,15 @@ export const getProjects = async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message || 'Failed to fetch projects' });
-  }
+  } 
 };
 
 export const createProject = async (req: Request, res: Response) => {
   try {
     const project = await projectService.createProject(req.body);
+    if (req.body?.selectedFrameIds && Array.isArray(req.body.selectedFrameIds)) {
+      await syncProjectFrames(project.id, req.body.selectedFrameIds);
+    }
     res.status(201).json({ success: true, message: 'Project created successfully', data: project });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message || 'Failed to create project' });

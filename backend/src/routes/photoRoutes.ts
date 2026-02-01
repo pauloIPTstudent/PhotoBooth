@@ -10,6 +10,7 @@ import {
   getAvailableFrames,
   getPhotoFile,
   downloadPhotoByToken,
+  deleteAllProjectPhotos,
 } from '../controllers/photoController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { uploadPhoto, uploadPhotos } from '../middleware/uploadMiddleware.js';
@@ -48,3 +49,6 @@ photoRoutes.get('/:id', getPhoto);
 
 // DELETE /api/photos/:id
 photoRoutes.delete('/:id', deletePhoto);
+
+// DELETE /api/photos/all/:id
+photoRoutes.delete('/all/:projectId', deleteAllProjectPhotos);

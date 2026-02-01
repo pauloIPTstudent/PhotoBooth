@@ -1,5 +1,5 @@
 import express from 'express';
-import { getPhotos, getPhoto, getPhotoByQRCode, savePhoto, deletePhoto, framePhoto, generatePhotoQRCode, getAvailableFrames, getPhotoFile, downloadPhotoByToken, } from '../controllers/photoController.js';
+import { getPhotos, getPhoto, getPhotoByQRCode, savePhoto, deletePhoto, framePhoto, generatePhotoQRCode, getAvailableFrames, getPhotoFile, downloadPhotoByToken, deleteAllProjectPhotos, } from '../controllers/photoController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { uploadPhoto, uploadPhotos } from '../middleware/uploadMiddleware.js';
 export const photoRoutes = express.Router();
@@ -26,4 +26,6 @@ photoRoutes.get('/project/:projectId', getPhotos);
 photoRoutes.get('/:id', getPhoto);
 // DELETE /api/photos/:id
 photoRoutes.delete('/:id', deletePhoto);
+// DELETE /api/photos/all/:id
+photoRoutes.delete('/all/:projectId', deleteAllProjectPhotos);
 //# sourceMappingURL=photoRoutes.js.map

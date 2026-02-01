@@ -385,3 +385,44 @@ export const downloadPhotoByToken = async (req: any, res: any) => {
     return res.status(500).send('Error processing download token');
   }
 };
+
+
+
+export const deleteAllProjectPhotos = async (req: any, res: any) => {
+  try {
+    const { projectId } = req.params;
+    const photos = await photoService.getPhotosByProjectId(projectId);
+    if (photos.length === 0) {
+      return res.status(404).json({ success: false, message: 'No photos found for this project' });
+    }
+    for (const photo of photos) {
+      // 2. Caminho absoluto do ficheiro (ajuste 'uploads' para a sua pasta real)
+      const filePath = path.join(process.cwd(), 'uploads', photo.projectId, photo.fileName);
+      // 3. Deletar o ficheiro físico
+      try {
+        await unlink(filePath);
+        console.log(`Arquivo deletado: ${filePath}`);
+      } catch (err: any) {
+        // Se o ficheiro não existir no disco, apenas logamos e seguimos para limpar o banco
+        console.warn(`Aviso: Ficheiro não encontrado no disco: ${filePath}`);
+      }
+      const success = await photoService.deletePhoto(photo.id);
+      if (!success) {
+        return res.status(404).json({
+          success: false,
+          message: `Photo not found at ${filePath}`,
+        });
+      }
+    }
+    res.json({
+      success: true,
+      message: `Photos from project ${projectId} deleted successfully`,
+    });
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting photos',
+      error: err.message,
+    });
+  }
+};

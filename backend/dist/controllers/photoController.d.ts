@@ -8,4 +8,5 @@ export declare const framePhoto: (req: any, res: any) => Promise<any>;
 export declare const getAvailableFrames: (req: any, res: any) => Promise<void>;
 export declare const generatePhotoQRCode: (req: any, res: any) => Promise<any>;
 export declare const downloadPhotoByToken: (req: any, res: any) => Promise<any>;
+export declare const deleteAllProjectPhotos: (req: any, res: any) => Promise<any>;
 //# sourceMappingURL=photoController.d.ts.map

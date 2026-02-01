@@ -1,4 +1,5 @@
 import * as projectService from '../services/projectService.js';
+import { syncProjectFrames } from '../services/frameService.js';
 export const getProjects = async (req, res) => {
     try {
         const { page = '1', filter = '' } = req.query;
@@ -22,6 +23,9 @@ export const getProjects = async (req, res) => {
 export const createProject = async (req, res) => {
     try {
         const project = await projectService.createProject(req.body);
+        if (req.body?.selectedFrameIds && Array.isArray(req.body.selectedFrameIds)) {
+            await syncProjectFrames(project.id, req.body.selectedFrameIds);
+        }
         res.status(201).json({ success: true, message: 'Project created successfully', data: project });
     }
     catch (err) {
