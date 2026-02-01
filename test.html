@@ -2,30 +2,48 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Upload de Foto</title>
+    <title>Teste de Som de Câmera</title>
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #1a1a1a; font-family: sans-serif; }
+        button { padding: 20px 40px; font-size: 20px; cursor: pointer; border-radius: 50px; border: none; background: #22c55e; color: white; font-weight: bold; }
+        button:active { transform: scale(0.95); background: #16a34a; }
+    </style>
 </head>
 <body>
 
-    <h2>Enviar Foto para o Projeto</h2>
+    <button onclick="playShutterSound()">📸 TIRAR FOTO</button>
 
-    <form action="http://localhost:3001/api/photos" method="POST" enctype="multipart/form-data">
-        
-        <div>
-            <label for="projectId">ID do Projeto:</label><br>
-            <input type="text" name="projectId" id="projectId" required>
-        </div>
+    <script>
+        function playShutterSound() {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const duration = 0.15;
+            
+            // Criar ruído branco
+            const bufferSize = audioCtx.sampleRate * duration;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
 
-        <br>
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
 
-        <div>
-            <label for="photo">Selecione a Imagem:</label><br>
-            <input type="file" name="photo" id="photo" accept="image/*" required>
-        </div>
+            // Filtro para som de "clique"
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'highpass';
+            filter.frequency.value = 1200;
 
-        <br>
+            const gainNode = audioCtx.createGain();
+            gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
 
-        <button type="submit">Enviar Foto</button>
-    </form>
+            noise.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
 
+            noise.start();
+        }
+    </script>
 </body>
 </html>

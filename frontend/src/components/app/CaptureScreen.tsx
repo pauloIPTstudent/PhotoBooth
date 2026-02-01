@@ -19,7 +19,7 @@ interface CaptureScreenProps {
 
 
 export const CaptureScreen = ({ projectId, projectStyle,frame, onConfirm }: CaptureScreenProps) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const shutterAudio = typeof Audio !== 'undefined' ? new Audio('/sounds/camera-shutter-1.mp3') : null;
   const [photos, setPhotos] = useState<string[]>([]);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -77,6 +77,7 @@ export const CaptureScreen = ({ projectId, projectStyle,frame, onConfirm }: Capt
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
       setCountdown(null);
+      playSound();
       const photo = takePhoto();
       if (photo) {
         newPhotos.push(photo);
@@ -86,6 +87,13 @@ export const CaptureScreen = ({ projectId, projectStyle,frame, onConfirm }: Capt
     }
     setIsCapturing(false);
     setTimeout(() => onConfirm(newPhotos), 1000);
+  };
+
+  const playSound = () => {
+    if (shutterAudio) {
+      shutterAudio.currentTime = 0; // Reseta para o início caso ainda esteja tocando
+      shutterAudio.play().catch(err => console.log("Erro ao tocar áudio:", err));
+    }
   };
 
   return (

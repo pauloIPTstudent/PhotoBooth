@@ -38,7 +38,7 @@ export const FramePreview = ({ rows, cols, isSelected = false, className = "" }:
                 ${rows > 3 ? 'w-6' : 'w-10'} /* Diminui o tamanho se houver muitas linhas */
                 ${isSelected 
                   ? 'bg-black scale-105 shadow-sm' 
-                  : 'bg-black bg-opacity-20 hover:bg-opacity-30'}
+                  : 'bg-gray-300 '}
               `}
             />
           ))}
