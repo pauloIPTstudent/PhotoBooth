@@ -24,6 +24,7 @@ export const createProject = async (req, res) => {
     try {
         const project = await projectService.createProject(req.body);
         if (req.body?.selectedFrameIds && Array.isArray(req.body.selectedFrameIds)) {
+            console.log("Sincronizando frames para o projeto:", project.id, req.body.selectedFrameIds);
             await syncProjectFrames(project.id, req.body.selectedFrameIds);
         }
         res.status(201).json({ success: true, message: 'Project created successfully', data: project });
@@ -36,6 +37,10 @@ export const editProject = async (req, res) => {
     const { id } = req.params;
     try {
         const updated = await projectService.updateProject(id, req.body);
+        if (req.body?.selectedFrameIds && Array.isArray(req.body.selectedFrameIds)) {
+            console.log("Sincronizando frames para o projeto:", id, req.body.selectedFrameIds);
+            await syncProjectFrames(id, req.body.selectedFrameIds);
+        }
         if (!updated)
             return res.status(404).json({ success: false, message: 'Project not found' });
         res.json({ success: true, message: 'Project updated successfully', data: updated });

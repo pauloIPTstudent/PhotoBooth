@@ -6,6 +6,10 @@
 GET {{BASE_URL}}/api/projects?page=1&filter=
 Authorization: Bearer {{TOKEN}}
 
+### Get project by id
+GET {{BASE_URL}}/api/projects/{{PROJECT_ID}}/open
+Authorization: Bearer {{TOKEN}}
+
 ### Create project
 POST {{BASE_URL}}/api/projects
 Content-Type: application/json
@@ -17,12 +21,9 @@ Authorization: Bearer {{TOKEN}}
   "theme": "default",
   "primary": "#ff0000",
   "secondary": "#00ff00",
-  "tertiary": "#0000ff"
+  "tertiary": "#0000ff",
+  "bg_image": "https://example.com/background.png"
 }
-
-### Get project by id
-GET {{BASE_URL}}/api/projects/{{PROJECT_ID}}/open
-Authorization: Bearer {{TOKEN}}
 
 ### Update project
 PUT {{BASE_URL}}/api/projects/{{PROJECT_ID}}
@@ -35,7 +36,9 @@ Authorization: Bearer {{TOKEN}}
   "theme": "default",
   "primary": "#111111",
   "secondary": "#00ff00",
-  "tertiary": "#0000ff"
+  "tertiary": "#0000ff",
+  "bg_image": "https://example.com/background.png"
+
 }
 
 ### Delete project

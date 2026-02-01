@@ -46,7 +46,7 @@ export const FramesScreen = () => {
   const fetchFrames = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:3001/api/photos/frames/available');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/photos/frames/available`);
       const result = await response.json();
       if (result.success) {
         // Garantimos que o mapeamento de nomes (padding/spacing) seja consistente
@@ -58,7 +58,7 @@ export const FramesScreen = () => {
       setIsLoading(false);
     }
   };
-
+ 
 
   const handleSave = async (formData: any) => { // Recebe os dados do componente filho
     const token = localStorage.getItem('token');

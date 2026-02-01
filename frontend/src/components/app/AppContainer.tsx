@@ -66,9 +66,9 @@ export const AppContainer = () => {
         return (<StartScreen 
           projectId={projectId} 
           projectStyle={style} 
-          onStart={() => setCurrentScreen('frame')} 
+          onStart={() => setCurrentScreen('capture')} 
         />);
-      case 'frame':
+      {/*case 'frame':
         return (
         <FrameSelectionScreen 
           projectId={projectId} // Passando o ID do estado
@@ -77,15 +77,16 @@ export const AppContainer = () => {
             setSelectedFrame(selectedFrameData);
             setCurrentScreen('capture');
           }}
-        />);
+        />);*/}
       case 'capture':
         return (
         <CaptureScreen 
           projectId={projectId} // Passando o ID do estado
           projectStyle={style}   // Passando o objeto de cores
           frame = {selectedFrame}
-          onConfirm={(photos) => {
+          onConfirm={(photos,selectedFrameData) => {
               setCapturedPhotos(photos);
+              setSelectedFrame(selectedFrameData);
               setCurrentScreen('preview');
             }}
         />);

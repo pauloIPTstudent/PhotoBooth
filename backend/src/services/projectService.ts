@@ -12,6 +12,7 @@ function mapRowToProject(row: any): Project {
     primary: row.primary_color,
     secondary: row.secondary_color,
     tertiary: row.tertiary_color,
+    bg_image: row.bg_image,
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
   };
@@ -60,10 +61,10 @@ export async function createProject(payload: Partial<Project>) {
     const primary = (payload as any).primary || styleFromBody.primary || '#000000';
     const secondary = (payload as any).secondary || styleFromBody.secondary || '#000000';
     const tertiary = (payload as any).tertiary || styleFromBody.tertiary || '#000000';
-
+    const bg_image = (payload as any).bg_image || styleFromBody.bg_image || null;
     const query = `
-      INSERT INTO projects (id, user_id, name, description, theme, primary_color, secondary_color, tertiary_color, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      INSERT INTO projects (id, user_id, name, description, theme, primary_color, secondary_color, tertiary_color, bg_image, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING *;
     `;
 
@@ -76,6 +77,7 @@ export async function createProject(payload: Partial<Project>) {
       primary,
       secondary,
       tertiary,
+      bg_image,
       now,
       now,
     ]);
@@ -110,11 +112,12 @@ export async function updateProject(id: string, payload: Partial<Project>) {
     const primary = (payload as any).primary ?? styleFromBody.primary ?? existing.primary;
     const secondary = (payload as any).secondary ?? styleFromBody.secondary ?? existing.secondary;
     const tertiary = (payload as any).tertiary ?? styleFromBody.tertiary ?? existing.tertiary;
+    const bg_image = (payload as any).bg_image || styleFromBody.bg_image || existing.bg_image;
 
     const query = `
       UPDATE projects 
-      SET name = $1, description = $2, theme = $3, primary_color = $4, secondary_color = $5, tertiary_color = $6, updated_at = $7
-      WHERE id = $8
+      SET name = $1, description = $2, theme = $3, primary_color = $4, secondary_color = $5, tertiary_color = $6, bg_image = $7, updated_at = $8
+      WHERE id = $9
       RETURNING *;
     `;
 
@@ -125,6 +128,7 @@ export async function updateProject(id: string, payload: Partial<Project>) {
       primary,
       secondary,
       tertiary,
+      bg_image,
       now,
       id,
     ]);
@@ -160,6 +164,7 @@ export async function getProjectStyle(id: string) {
       primary: p.primary,
       secondary: p.secondary,
       tertiary: p.tertiary,
+      bg_image: p.bg_image,
     };
   } catch (err) {
     console.error('Error getting project style:', err);

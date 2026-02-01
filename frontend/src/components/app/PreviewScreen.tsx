@@ -143,9 +143,9 @@ export const PreviewScreen = ({
                   className="group flex items-center justify-between px-8 py-6 rounded-2xl font-black text-2xl text-white shadow-2xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
                   style={{ backgroundColor: projectStyle?.tertiary || '#22c55e' }}
                 >
-                  Compartilhar <ArrowRight className="group-hover:translate-x-2 transition-transform" />
+                  Download <ArrowRight className="group-hover:translate-x-2 transition-transform" />
                 </button>
-
+ 
                 <button
                   onClick={onBack}
                   className="flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold text-white/50 hover:text-white transition-colors"

@@ -52,7 +52,7 @@ export const ProjectsScreen = ({ onLogout }: ProjectsScreenProps) => {
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/projects', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/projects`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -69,54 +69,6 @@ export const ProjectsScreen = ({ onLogout }: ProjectsScreenProps) => {
     }
   };
 
-  const handleAddProject = async () => {
-    if (!formData.name.trim()) return;
-
-    const token = localStorage.getItem('token');
-    const isEditing = !!editingProject;
-    
-    // URL dinâmica: se editar, usa o ID, se não, usa a rota base
-    const url = isEditing 
-      ? `http://localhost:3001/api/projects/${editingProject.id}` 
-      : 'http://localhost:3001/api/projects';
-    
-    const method = isEditing ? 'PUT' : 'POST';
-
-    try {
-      const res = await fetch(url, {
-        method: method,
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (res.ok) {
-        const result = await res.json();
-        
-        if (isEditing) {
-          // Atualiza a lista local com o projeto editado
-          setProjects(projects.map(p => p.id === editingProject.id ? result.data : p));
-        } else {
-          // Adiciona o novo projeto no topo
-          setProjects([result.data, ...projects]);
-        }
-        handleCloseForm(); // Limpa e fecha o form
-      } else {
-        const errorData = await res.json();
-        alert(`Erro: ${errorData.message}`);
-      }
-    } catch (err) {
-      console.error("Erro na requisição:", err);
-      // Fallback para teste offline (opcional)
-      if (!isEditing) {
-        const fallbackProject = { id: Date.now().toString(), ...formData, createdAt: new Date().toISOString() } as Project;
-        setProjects([fallbackProject, ...projects]);
-        handleCloseForm();
-      }
-    }
-  };
 
   const handleEdit = (project: Project) => {
     setEditingProject(project);
@@ -135,35 +87,6 @@ export const ProjectsScreen = ({ onLogout }: ProjectsScreenProps) => {
     setSelectedProject(project);
   };
 
-  const handleDeleteAllProjectPhotos = async (projectId: string) => {
-      // 1. Confirmação do usuário
-      if (!window.confirm('Tem certeza que deseja excluir todas as photos deste projeto? Esta ação não pode ser desfeita.')) {
-        return;
-      }
-      const token = localStorage.getItem('token');
-      try {
-        // 2. Chamada ao Backend
-        const res = await fetch(`http://localhost:3001/api/photos/all/${projectId}`, {
-          method: 'DELETE',
-          headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-        });
-
-        if (res.ok) {
-          // 3. Atualização Otimista (Remove da lista apenas se o backend confirmou)
-          //setphotos([]);
-          setPhotosRefreshKey(prev => prev + 1);
-        } else {
-          const errorData = await res.json();
-          alert(`Erro ao excluir: ${errorData.message || 'Erro desconhecido'}`);
-        }
-      } catch (err) {
-        console.error("Erro ao deletar projeto:", err);
-        alert("Não foi possível conectar ao servidor para excluir o projeto.");
-      }
-  };
-
 
 const handleDelete = async (id: string) => {
     // 1. Confirmação do usuário
@@ -175,7 +98,7 @@ const handleDelete = async (id: string) => {
 
     try {
       // 2. Chamada ao Backend
-      const res = await fetch(`http://localhost:3001/api/projects/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/projects/${id}`, {
         method: 'DELETE',
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -195,31 +118,13 @@ const handleDelete = async (id: string) => {
     }
   };
 
-  const handleCloseForm = () => {
-    setShowForm(false);
-    setEditingProject(null);
-    setFormData({
-      name: '',
-      description: '',
-      theme: 'default',
-      primary: '#FF6B6B',
-      secondary: '#4ECDC4',
-      tertiary: '#FFE66D'
-    });
-  };
-  if (selectedProject) {
-    return (
-      <ProjectPhotosView project={selectedProject} onBack={() => setSelectedProject(null)}/>
-    );
-  }
-
   const handleSaveProject = async (data: any) => {
     const token = localStorage.getItem('token');
     const isEditing = !!editingProject;
     const url = isEditing 
-      ? `http://localhost:3001/api/projects/${editingProject.id}` 
-      : 'http://localhost:3001/api/projects';
-    
+      ? `${process.env.NEXT_PUBLIC_BASE_URL}/api/projects/${editingProject.id}` 
+      : `${process.env.NEXT_PUBLIC_BASE_URL}/api/projects`;
+    console.log("Salvando projeto:", data);
     try {
       const res = await fetch(url, {
         method: isEditing ? 'PUT' : 'POST',

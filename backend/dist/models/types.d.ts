@@ -7,6 +7,7 @@ export interface Project {
     primary: string;
     secondary: string;
     tertiary: string;
+    bg_image?: string;
     createdAt: Date;
     updatedAt: Date;
 }

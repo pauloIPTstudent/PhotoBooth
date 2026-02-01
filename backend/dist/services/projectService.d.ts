@@ -14,5 +14,6 @@ export declare function getProjectStyle(id: string): Promise<{
     primary: string;
     secondary: string;
     tertiary: string;
+    bg_image: string;
 }>;
 //# sourceMappingURL=projectService.d.ts.map

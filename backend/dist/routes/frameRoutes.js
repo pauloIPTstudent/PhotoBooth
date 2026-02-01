@@ -2,12 +2,12 @@ import express from 'express';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { editFrame, deleteFrame, getFrameByIdController, generateFrame, getFramesByProjectIdController, addFrameToProjectController, removeFrameFromProjectController } from '../controllers/frameController.js';
 export const frameRoutes = express.Router();
+// GET /api/frames/project/:projectId - Retorna frames por projeto
+frameRoutes.get('/project/:projectId', getFramesByProjectIdController);
 // Aplicar middleware de autenticação para os demais endpoints
 frameRoutes.use(authMiddleware);
 // GET /api/frames/:id - Retorna frame por ID
 frameRoutes.get('/:id', getFrameByIdController);
-// GET /api/frames/project/:projectId - Retorna frames por projeto
-frameRoutes.get('/project/:projectId', getFramesByProjectIdController);
 // POST /api/frames/project/ - Retorna frames por projeto
 frameRoutes.post('/project/', addFrameToProjectController);
 // DELETE /api/frames/project/- Remove frame from project

@@ -38,7 +38,7 @@ export const FrameSelectionScreen = ({ projectId, projectStyle, onConfirm }: Fra
   useEffect(() => {
     const fetchFrames = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/photos/frames/available`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/frames/project/${projectId}`);
         const result = await response.json();
         
         if (result.success) {

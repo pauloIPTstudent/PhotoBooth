@@ -32,7 +32,7 @@ export const ProjectPhotosView = ({ project,onBack }: ProjectPhotosViewProps) =>
     const fetchPhotos = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`http://localhost:3001/api/photos/project/${project.id}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/photos/project/${project.id}`, {
             headers: {
             Authorization: `Bearer ${token}`,
             },
@@ -58,7 +58,7 @@ export const ProjectPhotosView = ({ project,onBack }: ProjectPhotosViewProps) =>
     setDeletingId(photoId);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3001/api/photos/${photoId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/photos/${photoId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -87,7 +87,7 @@ export const ProjectPhotosView = ({ project,onBack }: ProjectPhotosViewProps) =>
       const token = localStorage.getItem('token');
       try {
         // 2. Chamada ao Backend
-        const res = await fetch(`http://localhost:3001/api/photos/all/${projectId}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/photos/all/${projectId}`, {
           method: 'DELETE',
           headers: {
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
