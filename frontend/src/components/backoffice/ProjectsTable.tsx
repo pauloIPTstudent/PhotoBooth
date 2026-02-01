@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Plus, Trash2, Edit, Eye } from 'lucide-react';
+import { Plus, Trash2, Edit, Eye, Link } from 'lucide-react';
 
 interface Project {
   id: string;
@@ -73,6 +73,12 @@ export const ProjectsTable = ({
                     >
                       <Trash2 size={16} />
                     </button>
+                    <button
+                      onClick={() => window.open(`${process.env.NEXT_PUBLIC_BASE_URL}project/${project.id}`, '_blank')}
+                      className="flex-1 flex items-center justify-center gap-2 text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg text-sm font-semibold transition-colors"
+                    >
+                      <Link size={16} />
+                    </button>
                   </div>
                 </div>
               ))}
@@ -139,6 +145,16 @@ export const ProjectsTable = ({
                       title="Deletar"
                     >
                       <Trash2 size={16} className="md:w-5 md:h-5" />
+                    </button>
+                    <button
+                      onClick={() =>{
+                        const baseUrl = process.env.FRONTEND_BASE_URL || '';
+                        const url = `${baseUrl}/?projectId=${project.id}`;
+                        window.open(url, '_blank');
+                      }} 
+                      className="flex-1 flex items-center justify-center gap-2 text-green-600 hover:bg-green-50 px-3 py-2 rounded-lg text-sm font-semibold transition-colors"
+                    >
+                      <Link size={16} />
                     </button>
                   </td>
                 </tr>
