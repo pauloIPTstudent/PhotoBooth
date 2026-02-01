@@ -10,6 +10,7 @@ interface StartScreenProps {
     primary: string;
     secondary: string;
     tertiary: string;
+    bg_image?: string;
   } | null;
   onStart: () => void;
 }

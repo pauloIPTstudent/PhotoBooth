@@ -15,6 +15,7 @@ export const ProjectForm = ({ initialData, isEditing, onSave, onCancel }: Projec
   const [selected, setSelected] = useState<string[]>([]);
   const [frames, setFrames] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const bgImageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/projects/${formData.id}/bg-file`;
   // Sincroniza se o initialData mudar (ex: trocar de um edit para outro)
   useEffect(() => {
     setFormData(initialData);
@@ -70,10 +71,10 @@ export const ProjectForm = ({ initialData, isEditing, onSave, onCancel }: Projec
     alert("Salve o projeto primeiro antes de adicionar uma imagem de fundo.");
     return;
   }
-
+ 
   const token = localStorage.getItem('token');
   const formDataUpload = new FormData();
-  formDataUpload.append('bg_image', file); // 'bg_image' deve ser o nome esperado pelo Multer no backend
+  formDataUpload.append('bg_image', file); 
 
   try {
     setIsLoading(true);
@@ -88,7 +89,7 @@ export const ProjectForm = ({ initialData, isEditing, onSave, onCancel }: Projec
     const result = await response.json();
     if (result.success) {
       // Atualiza o estado com o caminho retornado pelo backend
-      setFormData({ ...formData, bg_image: result.path || result.data.bg_image });
+      setFormData({ ...formData, bg_image: result.filename || result.data.bg_image });
       alert("Imagem de fundo atualizada!");
     }
   } catch (err) {
@@ -191,27 +192,50 @@ export const ProjectForm = ({ initialData, isEditing, onSave, onCancel }: Projec
 
                 {/* Campo de Upload: Só aparece no modo Imagem de fundo (vintage) */}
                 {formData.theme === 'vintage' && (
-                  <div className="animate-in fade-in duration-300">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Imagem de Fundo</label>
-                    <div className="flex items-center justify-center w-full">
-                      <label className="flex flex-col items-center justify-center w-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-100">
-                        <div className="flex flex-col items-center justify-center pt-2 pb-2">
-                          <svg className="w-8 h-8 mb-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
-                          {<p className="text-xs text-gray-500 font-semibold text-center">Clique para upload <br/> (PNG, JPG ou SVG)</p>}
+                  <div className="flex items-center justify-center w-full">
+                    <label className="flex flex-col items-center justify-center w-full min-h-[150px] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-100 overflow-hidden relative">
+                      
+                      {/* Se existir uma imagem no formData, mostramos a preview */}
+                      {formData.bg_image ? (
+                        <div className="absolute inset-0 w-full h-full group">
+                          <img 
+                            // Adicionamos ?t=Date.now() apenas para evitar cache após o upload
+                            src={`${bgImageUrl}?t=${formData.updated_at || Date.now()}`} 
+                            alt="Background Preview" 
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              // Caso a imagem falhe (ex: deletada do disco), limpa o estado ou mostra ícone
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                          {/* Overlay para indicar que pode mudar a foto */}
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center">
+                            <svg className="w-8 h-8 text-white mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                            <span className="text-white text-xs font-bold">Alterar Imagem</span>
+                          </div>
                         </div>
-                        <input 
-                          type="file" 
-                          className="hidden" 
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              handleImageUpload(file);
-                            }
-                          }} 
-                        />
-                      </label>
-                    </div>
+                      ) : (
+                        /* Caso não tenha imagem, mostra o ícone original */
+                        <div className="flex flex-col items-center justify-center pt-2 pb-2">
+                          <svg className="w-8 h-8 mb-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                          </svg>
+                          <p className="text-xs text-gray-500 font-semibold text-center">
+                            Clique para upload <br/> (PNG, JPG ou SVG)
+                          </p>
+                        </div>
+                      )}
+
+                      <input 
+                        type="file" 
+                        className="hidden" 
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleImageUpload(file);
+                        }} 
+                      />
+                    </label>
                   </div>
                 )}
               </div>
