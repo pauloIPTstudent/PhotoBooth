@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Gesture Game - Proporção Travada</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
+    <style>
+        :root { --primary: #ff4bb4; --accent: #ff0844; }
+        
+        body { 
+            margin: 0; 
+            background: #000; /* Fundo preto para as barras laterais */
+            color: white; 
+            font-family: 'Segoe UI', sans-serif; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            width: 100vw; 
+            overflow: hidden; 
+        }
+        
+        /* O segredo está aqui: o container dita o tamanho máximo */
+        .game-container { 
+            position: relative; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Garante que o container nunca ultrapasse a tela */
+            width: 100%;
+            height: 100%;
+        }
+
+        canvas { 
+            /* Importante: Mantém a proporção intrínseca */
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            
+            transform: scaleX(-1); /* Espelha a imagem */
+            object-fit: contain; /* Não deixa esticar de forma alguma */
+            
+            box-shadow: 0 0 100px rgba(0,0,0,0.5);
+            image-rendering: auto;
+        }
+
+        .overlay { 
+            position: absolute; 
+            /* O overlay agora deve acompanhar o tamanho do canvas para não ficar fora de posição */
+            z-index: 10; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 30px; 
+            pointer-events: none; 
+            inset: 0; /* Ocupa o container todo */
+        }
+
+        #challenge-card { 
+            background: rgba(0, 0, 0, 0.7); 
+            backdrop-filter: blur(10px); 
+            padding: 20px 40px; 
+            border-radius: 20px; 
+            border: 2px solid var(--primary); 
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .task { font-size: clamp(20px, 4vw, 36px); font-weight: 900; text-transform: uppercase; }
+        
+        #progress-container { width: 60%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+        #progress-fill { width: 0%; height: 100%; background: var(--primary); transition: width 0.1s linear; }
+
+        .flash { position: absolute; inset: 0; background: white; z-index: 100; opacity: 0; pointer-events: none; }
+        .success-animation { animation: flashEffect 0.4s ease-out; }
+        @keyframes flashEffect { 0% { opacity: 1; } 100% { opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <video id="input_video" style="display:none" playsinline></video>
+        <canvas id="output_canvas"></canvas>
+        <div id="flash-overlay" class="flash"></div>
+
+        <div class="overlay">
+            <div id="challenge-card">
+                <div id="current-task" class="task">CÂMERA...</div>
+            </div>
+            <div id="progress-container">
+                <div id="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        const videoElement = document.getElementById('input_video');
+        const canvasElement = document.getElementById('output_canvas');
+        const canvasCtx = canvasElement.getContext('2d');
+        const taskElement = document.getElementById('current-task');
+        const flashOverlay = document.getElementById('flash-overlay');
+        const progressFill = document.getElementById('progress-fill');
+
+        let holdTime = 0;
+        const REQUIRED_HOLD = 15; 
+        let currentChallengeIndex = 0;
+
+        function getDist(p1, p2) {
+            return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+        }
+
+        function checkHeart(multiHandLandmarks) {
+            if (!multiHandLandmarks || multiHandLandmarks.length < 2) return false;
+            const h1 = multiHandLandmarks[0];
+            const h2 = multiHandLandmarks[1];
+            // Distância entre polegares (ponto 4) e indicadores (ponto 8)
+            const thumbDist = getDist(h1[4], h2[4]);
+            const indexDist = getDist(h1[8], h2[8]);
+            return thumbDist < 0.12 && indexDist < 0.12;
+        }
+
+        const challenges = [
+            { label: "❤️ Coração com as mãos!", type: 'hand', check: checkHeart },
+            { label: "😄 Dê um Sorriso!", type: 'face', check: (l) => getDist(l[13], l[14]) > 0.055 },
+            { label: "😉 Pisque um olho!", type: 'face', check: (l) => getDist(l[159], l[145]) < 0.015 || getDist(l[386], l[374]) < 0.015 }
+        ];
+
+        const faceMesh = new FaceMesh({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}` });
+        const hands = new Hands({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}` });
+
+        faceMesh.setOptions({ refineLandmarks: true, minDetectionConfidence: 0.5 });
+        hands.setOptions({ maxNumHands: 2, minDetectionConfidence: 0.5 });
+
+        let lastFace = null, lastHands = null;
+        faceMesh.onResults(res => { lastFace = res.multiFaceLandmarks?.[0]; });
+        hands.onResults(res => { lastHands = res.multiHandLandmarks; });
+
+        function draw() {
+            // Desenha o frame no tamanho real do canvas
+            canvasCtx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+            const challenge = challenges[currentChallengeIndex];
+            let isDetected = false;
+
+            if (challenge.type === 'face' && lastFace) isDetected = challenge.check(lastFace);
+            if (challenge.type === 'hand' && lastHands) isDetected = challenge.check(lastHands);
+
+            if (isDetected) {
+                holdTime++;
+                if (holdTime >= REQUIRED_HOLD) {
+                    currentChallengeIndex = (currentChallengeIndex + 1) % challenges.length;
+                    taskElement.innerText = challenges[currentChallengeIndex].label;
+                    holdTime = 0;
+                    flashOverlay.classList.remove('success-animation');
+                    void flashOverlay.offsetWidth;
+                    flashOverlay.classList.add('success-animation');
+                }
+            } else {
+                holdTime = Math.max(0, holdTime - 0.5);
+            }
+
+            progressFill.style.width = `${(holdTime / REQUIRED_HOLD) * 100}%`;
+            requestAnimationFrame(draw);
+        }
+
+        async function init() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: 1280, height: 720 } // Forçamos uma proporção 16:9 padrão
+                });
+                
+                videoElement.srcObject = stream;
+                await videoElement.play();
+
+                // Define a resolução interna do canvas igual à da câmera
+                canvasElement.width = videoElement.videoWidth;
+                canvasElement.height = videoElement.videoHeight;
+                
+                taskElement.innerText = challenges[0].label;
+
+                setInterval(async () => {
+                    await faceMesh.send({ image: videoElement });
+                    await hands.send({ image: videoElement });
+                }, 60);
+
+                draw();
+            } catch (err) {
+                taskElement.innerText = "ERRO NA CÂMERA";
+                console.error(err);
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
