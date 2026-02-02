@@ -77,7 +77,7 @@ export const AppContainer = () => {
           projectStyle={style} 
           onStart={() => setCurrentScreen('capture')} 
         />);
-      {/*case 'frame':
+      /*case 'frame':
         return (
         <FrameSelectionScreen 
           projectId={projectId} // Passando o ID do estado
@@ -86,7 +86,7 @@ export const AppContainer = () => {
             setSelectedFrame(selectedFrameData);
             setCurrentScreen('capture');
           }}
-        />);*/}
+        />);*/
       case 'capture':
         return (
         <CaptureScreen 
@@ -110,8 +110,8 @@ export const AppContainer = () => {
             onConfirm={() => setCurrentScreen('start')}
           />
         );
-      {/*case 'qrcode':
-        return <QRCodeScreen />;*/}
+      /*case 'qrcode':
+        return <QRCodeScreen />;*/
       default:
         return (
         <FrameSelectionScreen 
