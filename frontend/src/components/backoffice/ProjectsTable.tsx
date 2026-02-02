@@ -7,9 +7,12 @@ interface Project {
   id: string;
   name: string;
   description: string;
+  theme: string,
+  primary: string;
+  secondary: string;
+  tertiary: string;
   createdAt: string;
 }
-
 interface ProjectsTableProps {
   projects: Project[];
   isLoading: boolean;
