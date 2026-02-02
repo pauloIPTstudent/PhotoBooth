@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Gesture Game - Heart Edition</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
+    <style>
+        :root { --primary: #ff4bb4; --accent: #ff0844; }
+        body { margin: 0; background: #0a0a0a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .game-container { position: relative; width: 90vw; height: 85vh; border-radius: 30px; border: 4px solid rgba(255,255,255,0.1); overflow: hidden; }
+        video, canvas { position: absolute; width: 100%; height: 100%; transform: scaleX(-1); object-fit: cover; }
+        .overlay { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 40px; pointer-events: none; background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.4) 100%); }
+        #challenge-card { background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(15px); padding: 25px 50px; border-radius: 25px; border: 2px solid var(--primary); text-align: center; }
+        .task { font-size: 38px; font-weight: 900; text-transform: uppercase; }
+        #progress-fill { width: 0%; height: 8px; background: linear-gradient(90deg, var(--primary), var(--accent)); position: absolute; bottom: 0; left: 0; transition: width 0.1s; }
+        .flash { position: absolute; inset: 0; background: white; z-index: 100; opacity: 0; pointer-events: none; }
+        .success-animation { animation: flashEffect 0.4s ease-out; }
+        @keyframes flashEffect { 0% { opacity: 0.9; } 100% { opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <video id="input_video" playsinline></video>
+        <canvas id="output_canvas"></canvas>
+        <div id="flash-overlay" class="flash"></div>
+        <div class="overlay">
+            <div id="challenge-card">
+                <div style="color: var(--primary); letter-spacing: 3px; font-size: 14px;">PROXIMA POSE</div>
+                <div id="current-task" class="task">INICIALIZANDO...</div>
+            </div>
+            <div id="progress-fill"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        const videoElement = document.getElementById('input_video');
+        const canvasElement = document.getElementById('output_canvas');
+        const canvasCtx = canvasElement.getContext('2d');
+        const taskElement = document.getElementById('current-task');
+        const flashOverlay = document.getElementById('flash-overlay');
+        const progressFill = document.getElementById('progress-fill');
+
+        let holdTime = 0;
+        const REQUIRED_HOLD = 12; 
+        let currentChallengeIndex = 0;
+
+        // --- LOGICA DO CORAÇÃO ---
+        // Verifica se as pontas dos dedos indicadores e polegares das duas mãos estão próximas
+        function checkHeart(handLandmarks) {
+            if (handLandmarks.length < 2) return false;
+            
+            const hand1 = handLandmarks[0];
+            const hand2 = handLandmarks[1];
+
+            // Pontos: 4 (Polegar), 8 (Indicador)
+            const distThumb = getDist(hand1[4], hand2[4]);
+            const distIndex = getDist(hand1[8], hand2[8]);
+
+            // Se as pontas dos polegares e indicadores estiverem próximas, assume-se formato de coração
+            return distThumb < 0.15 && distIndex < 0.15;
+        }
+
+        const challenges = [
+            { label: "❤️ Faça um Coração!", type: 'hand', check: (l) => checkHeart(l) },
+            { label: "😄 Sorria!", type: 'face', check: (l) => getDist(l[13], l[14]) > 0.05 },
+            { label: "😲 Surpresa!", type: 'face', check: (l) => getDist(l[105], l[159]) > 0.07 },
+            { label: "😉 Pisque um olho!", type: 'face', check: (l) => getDist(l[159], l[145]) < 0.015 || getDist(l[386], l[374]) < 0.015 }
+        ];
+
+        function getDist(p1, p2) {
+            return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+        }
+
+        // --- PROCESSAMENTO MULTI-MODELO ---
+        const faceMesh = new FaceMesh({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}` });
+        const hands = new Hands({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}` });
+
+        faceMesh.setOptions({ refineLandmarks: true, minDetectionConfidence: 0.5 });
+        hands.setOptions({ maxNumHands: 2, minDetectionConfidence: 0.7 });
+
+        let lastFaceResults = null;
+        let lastHandResults = null;
+
+        faceMesh.onResults(res => { lastFaceResults = res.multiFaceLandmarks; });
+        hands.onResults(res => { lastHandResults = res.multiHandLandmarks; });
+
+        async function update() {
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+            const challenge = challenges[currentChallengeIndex];
+            let detected = false;
+
+            if (challenge.type === 'face' && lastFaceResults?.[0]) {
+                detected = challenge.check(lastFaceResults[0]);
+            } else if (challenge.type === 'hand' && lastHandResults) {
+                detected = challenge.check(lastHandResults);
+            }
+
+            if (detected) {
+                holdTime++;
+                if (holdTime >= REQUIRED_HOLD) {
+                    currentChallengeIndex = (currentChallengeIndex + 1) % challenges.length;
+                    taskElement.innerText = challenges[currentChallengeIndex].label;
+                    holdTime = 0;
+                    flashOverlay.classList.remove('success-animation');
+                    void flashOverlay.offsetWidth;
+                    flashOverlay.classList.add('success-animation');
+                }
+            } else {
+                holdTime = Math.max(0, holdTime - 0.5);
+            }
+
+            progressFill.style.width = `${(holdTime / REQUIRED_HOLD) * 100}%`;
+            canvasCtx.restore();
+            requestAnimationFrame(update);
+        }
+
+        // --- CAMERA HD ---
+        async function startCamera() {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { width: { ideal: 1920 }, height: { ideal: 1080 } }
+            });
+            videoElement.srcObject = stream;
+            videoElement.play();
+
+            // Sincroniza tamanho do canvas para alta qualidade
+            videoElement.onloadedmetadata = () => {
+                canvasElement.width = videoElement.videoWidth;
+                canvasElement.height = videoElement.videoHeight;
+                taskElement.innerText = challenges[0].label;
+                
+                // Loop de processamento
+                setInterval(async () => {
+                    await faceMesh.send({ image: videoElement });
+                    await hands.send({ image: videoElement });
+                }, 100); 
+                update();
+            };
+        }
+
+        startCamera();
+    </script>
+</body>
+</html>

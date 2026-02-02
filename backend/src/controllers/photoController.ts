@@ -94,10 +94,17 @@ export const getPhotoByQRCode = async (req: any, res: any) => {
       });
     }
 
-    res.json({
-      success: true,
-      data: photo,
-    });
+    const filePath = path.join(process.cwd(), 'uploads', photo.projectId, photo.fileName);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({
+        success: false,
+        message: 'File not found on disk',
+      });
+    }
+
+    // Enviar o ficheiro de imagem diretamente
+    return res.sendFile(filePath);
   } catch (err: any) {
     res.status(500).json({
       success: false,
@@ -305,7 +312,7 @@ export const getAvailableFrames = async (req: any, res: any) => {
 
 export const generatePhotoQRCode = async (req: any, res: any) => {
   const { id } = req.params;
-  const baseUrl = process.env.BASE_URL || 'http://localhost:3001';
+  const baseUrl = process.env.FrONTEND_URL || 'http://localhost:3001';
 
   try {
     const photo = await photoService.getPhotoById(id);
@@ -327,7 +334,7 @@ export const generatePhotoQRCode = async (req: any, res: any) => {
     });
 
     // Criar URL do QR code (link público que redireciona para download via token)
-    const qrUrl = `${baseUrl}/api/photos/download/${qrToken}/file`;
+    const qrUrl = `${baseUrl}/qrcode/?token=${qrToken}&&projectId=${photo.projectId}&&photoId=${photo.id}`;
 
     // Gerar QR code como Data URL (base64)
     const qrCodeDataUrl = await QRCode.toDataURL(qrUrl);
@@ -357,32 +364,51 @@ export const downloadPhotoByToken = async (req: any, res: any) => {
   const { token } = req.params;
   try {
     const tokenData = qrTokenStore.get(token);
-    if (!tokenData) {
-      return res.status(404).send('Invalid or expired download token');
-    }
+     if (!tokenData) {
+        return res.status(404).json({
+          success: false,
+          message: 'Invalid or expired QR code token',
+        });
+      }
 
-    if (Date.now() > tokenData.expiresAt) {
-      qrTokenStore.delete(token);
-      return res.status(401).send('Download token has expired');
-    }
+      // Verificar se o token expirou
+      if (Date.now() > tokenData.expiresAt) {
+        qrTokenStore.delete(token);
+        return res.status(401).json({
+          success: false,
+          message: 'QR code token has expired (valid for 5 minutes)',
+        });
+      }
 
     const photo = await photoService.getPhotoById(tokenData.photoId);
-    if (!photo) return res.status(404).send('Photo not found');
+    if (!photo) return res.status(404).json({
+      success: false,
+      message: 'Photo not found',
+    });
 
     if (!photo.projectId || !photo.fileName) {
-      return res.status(400).send('Invalid photo metadata');
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid photo metadata',
+      });
     }
 
     const filePath = path.join(process.cwd(), 'uploads', photo.projectId, photo.fileName);
 
     if (!fs.existsSync(filePath)) {
-      return res.status(404).send('File not found on disk');
+      return res.status(404).json({
+        success: false,
+        message: 'File not found on disk',
+      });
     }
 
     // Enviar o ficheiro de imagem diretamente
     return res.sendFile(filePath);
   } catch (err: any) {
-    return res.status(500).send('Error processing download token');
+    return res.status(500).json({
+      success: false,
+      message: 'Error processing download token',
+    });
   }
 };
 

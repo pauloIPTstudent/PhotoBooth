@@ -18,6 +18,7 @@ export interface ProjectStyle {
   primary: string;
   secondary: string;
   tertiary: string;
+  bg_image?: string; // Adicione este campo
 }
 export interface FrameData {
   id: string;
@@ -50,13 +51,21 @@ export const AppContainer = () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/projects/${id}/style`);
       const result = await response.json();
+      
       if (result.success) {
-        setStyle(result.data);
+        const styleData = result.data;
+
+        // Se o tema for vintage, injetamos a URL do arquivo físico
+        if (styleData.theme === 'vintage') {
+          styleData.bg_image = `${process.env.NEXT_PUBLIC_BASE_URL}/api/projects/${id}/bg-file`;
+        }else{styleData.bg_image = undefined;}
+
+        setStyle(styleData);
       }
     } catch (err) {
-      console.error("Erro ao carregar estilo do projeto:", err);
+      console.error("Erro ao carregar estilo:", err);
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -98,11 +107,11 @@ export const AppContainer = () => {
             frame={selectedFrame}
             photos={capturedPhotos}
             onBack={() => setCurrentScreen('capture')} // Opcional: permitir voltar
-            onConfirm={() => setCurrentScreen('qrcode')}
+            onConfirm={() => setCurrentScreen('start')}
           />
         );
-      case 'qrcode':
-        return <QRCodeScreen />;
+      {/*case 'qrcode':
+        return <QRCodeScreen />;*/}
       default:
         return (
         <FrameSelectionScreen 

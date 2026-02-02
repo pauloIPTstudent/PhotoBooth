@@ -38,7 +38,6 @@ export const FrameSelection = ({
     </div>
   );
 
-  // Cálculos de Paginação
   const totalPages = Math.ceil(frames.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentFrames = frames.slice(startIndex, startIndex + itemsPerPage);
@@ -70,7 +69,6 @@ export const FrameSelection = ({
                 isSelected ? 'border-blue-500 bg-blue-50/10' : 'border-transparent hover:border-gray-200'
               }`}
             >
-              {/* Indicador de Seleção (Bola) */}
               <div className={`absolute top-3 right-3 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
                 isSelected 
                   ? 'bg-blue-600 border-blue-600 text-white' 
@@ -91,7 +89,7 @@ export const FrameSelection = ({
         })}
       </div>
 
-      {/* Paginação */}
+      {/* Paginação Corrigida */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between bg-white px-4 py-2 rounded-lg border border-gray-100 shadow-sm">
           <span className="text-xs text-gray-500 uppercase font-bold tracking-tighter">
@@ -100,6 +98,7 @@ export const FrameSelection = ({
           
           <div className="flex items-center gap-2">
             <button 
+              type="button" // ADICIONADO: Impede o submit do form pai
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
               className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-30 transition-colors"
@@ -110,6 +109,7 @@ export const FrameSelection = ({
               {currentPage} / {totalPages}
             </span>
             <button 
+              type="button" // ADICIONADO: Impede o submit do form pai
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
               className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-30 transition-colors"
