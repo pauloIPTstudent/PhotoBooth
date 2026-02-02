@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload de Foto</title>
+</head>
+<body>
+
+    <h2>Enviar Foto para o Projeto</h2>
+
+    <form action="http://localhost:3001/api/photos" method="POST" enctype="multipart/form-data">
+        
+        <div>
+            <label for="projectId">ID do Projeto:</label><br>
+            <input type="text" name="projectId" id="projectId" required>
+        </div>
+
+        <br>
+
+        <div>
+            <label for="photo">Selecione a Imagem:</label><br>
+            <input type="file" name="photo" id="photo" accept="image/*" required>
+        </div>
+
+        <br>
+
+        <button type="submit">Enviar Foto</button>
+    </form>
+
+</body>
+</html>

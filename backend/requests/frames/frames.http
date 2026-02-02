@@ -1,0 +1,84 @@
+# Frames endpoints
+@BASE_URL = http://localhost:3001
+@TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE3Njk5NDE2OTQsImV4cCI6MTc3MDAyODA5NH0.5wci_KtAN5-WktoDI0LF9TPXZ5yLolt_9qehGj0OTTE
+@FRAME_ID = aa69c2d1-f29e-496a-b510-a150e7194846
+@PROJECT_ID = 3fee839a-9d8b-42e4-aeed-e2862648066c
+
+### List frames (public)
+GET {{BASE_URL}}/api/photos/frames/available
+
+### List all frames from project (private)
+GET {{BASE_URL}}/api/frames/project/{{PROJECT_ID}}
+Authorization: Bearer {{TOKEN}}
+
+### Create frame
+POST {{BASE_URL}}/api/frames
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+{
+  "name": "2x2 Grid Frame",
+  "description": "Created via REST Client",
+  "rows": 2,
+  "cols": 2,
+  "photoWidth": 300,
+  "photoHeight": 300,
+  "padding": 20,
+  "backgroundColor": "#ffffff",
+  "message": "Smile!"
+}
+
+### Get frame by id
+GET {{BASE_URL}}/api/frames/{{FRAME_ID}}
+Authorization: Bearer {{TOKEN}}
+
+### Update frame
+PUT {{BASE_URL}}/api/frames/{{FRAME_ID}}
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+{
+  "name": "Updated Frame Name",
+  "description": "Updated via REST Client",
+  "rows": 3,
+  "cols": 1,
+  "photoWidth": 250,
+  "photoHeight": 250,
+  "padding": 15,
+  "backgroundColor": "#f0f0f0",
+  "message": "Cheese!"
+}
+
+### Delete frame
+DELETE {{BASE_URL}}/api/frames/{{FRAME_ID}}
+Authorization: Bearer {{TOKEN}}
+
+
+
+### Get all project frames
+GET {{BASE_URL}}/api/frames/project/{{PROJECT_ID}}
+Authorization: Bearer {{TOKEN}}
+
+### Associate frame to project
+POST {{BASE_URL}}/api/frames/project/
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+{
+    "projectId": "{{PROJECT_ID}}",
+    "frameId": "{{FRAME_ID}}"
+}
+
+### Delete frame from project
+DELETE {{BASE_URL}}/api/frames/project/
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+{
+    "projectId": "{{PROJECT_ID}}",
+    "frameId": "{{FRAME_ID}}"
+}
+
+
+
+# Note: if your API uses different paths for frames, update these requests accordingly.

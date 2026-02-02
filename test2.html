@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Teste Upload de Background</title>
+</head>
+<body>
+
+    <h2>Upload de Imagem de Fundo</h2>
+    
+    <div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px; max-width: 400px;">
+        <input type="file" id="campoArquivo" accept="image/*">
+        <br><br>
+        <button onclick="fazerUpload()">Enviar para o Backend</button>
+    </div>
+
+    <pre id="resultado" style="margin-top: 20px; background: #f4f4f4; padding: 10px;"></pre>
+
+    <script>
+        async function fazerUpload() {
+            const input = document.getElementById('campoArquivo');
+            const pre = document.getElementById('resultado');
+            
+            if (!input.files[0]) {
+                alert("Por favor, selecione um arquivo primeiro!");
+                return;
+            }
+
+            // Configurações do seu teste
+            const PROJECT_ID = "3fee839a-9d8b-42e4-aeed-e2862648066c";
+            const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE3Njk5MDU3NjMsImV4cCI6MTc2OTk5MjE2M30.XJWbBq4FJ1t6IQ5YfDaSRNF4SjBOHSVXeADRlBtfrYw";
+            
+            const formData = new FormData();
+            // "bg_image" deve ser o mesmo nome que está no upload.single('bg_image')
+            formData.append('bg_image', input.files[0]);
+
+            pre.innerHTML = "Enviando...";
+
+            try {
+                const response = await fetch(`http://localhost:3001/api/projects/${PROJECT_ID}/bg`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${TOKEN}`
+                    },
+                    body: formData // Nota: Não defina Content-Type aqui, o fetch faz isso por você com o boundary
+                });
+
+                const data = await response.json();
+                pre.innerHTML = JSON.stringify(data, null, 2);
+            } catch (error) {
+                pre.innerHTML = "Erro na requisição: " + error.message;
+            }
+        }
+    </script>
+
+</body>
+</html>

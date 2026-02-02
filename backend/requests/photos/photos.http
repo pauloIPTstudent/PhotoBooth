@@ -1,0 +1,71 @@
+# Photos endpoints
+@BASE_URL = http://localhost:3001
+@TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE3Njk5MDc0NTgsImV4cCI6MTc2OTk5Mzg1OH0.7Xk3kmEAwLwlZMmQeDiTwB8voNDa6OiW8-GqVYqpnkU
+@QR_TOKEN = qr-token-1769991286319-8fg8q8rgl
+@PROJECT_ID = 3fee839a-9d8b-42e4-aeed-e2862648066c
+@PHOTO_ID = 210fc313-2b5e-4d8e-9db6-41ae517e620e
+
+
+### Create photo with file upload
+POST {{BASE_URL}}/api/photos
+Content-Type: multipart/form-data; boundary=----FormBoundary
+
+------FormBoundary
+Content-Disposition: form-data; name="projectId"
+
+{{PROJECT_ID}}
+------FormBoundary
+Content-Disposition: form-data; name="photo"; filename="test-image.jpg"
+Content-Type: image/jpeg
+
+< ./test-image.jpg
+------FormBoundary--
+
+### Get photo by id
+GET {{BASE_URL}}/api/photos/{{PHOTO_ID}}
+Authorization: Bearer {{TOKEN}}
+
+### Donwload photo by id
+GET {{BASE_URL}}/api/photos/download/{{PHOTO_ID}}
+Authorization: Bearer {{QR_TOKEN}}
+
+### Delete photo
+DELETE {{BASE_URL}}/api/photos/{{PHOTO_ID}}
+Authorization: Bearer {{TOKEN}}
+
+### Delete all projectid photos
+DELETE {{BASE_URL}}/api/photos/all/{{PROJECT_ID}}
+Authorization: Bearer {{TOKEN}}
+
+### Generate QR for photo
+POST {{BASE_URL}}/api/photos/{{PHOTO_ID}}/generate-qrcode
+Content-Type: application/json
+
+{
+  "callback": "none"
+}
+
+### Compose photo booth with frame
+PUT {{BASE_URL}}/api/photos/{{PHOTO_ID}}/frame
+Content-Type: application/json
+
+{
+  "frameId": "{{FRAME_ID}}",
+  "photoUrls": [
+    "https://example.com/photo1.jpg",
+    "https://example.com/photo2.jpg"
+  ],
+  "backgroundColor": "#ffffff"
+}
+
+
+### Get project photos
+GET {{BASE_URL}}/api/photos/project/{{PROJECT_ID}}
+Authorization: Bearer {{TOKEN}}
+
+
+### Get QR token (public endpoint)
+GET {{BASE_URL}}/api/photos/qrcode/{{QR_TOKEN}}
+
+
+# Note: adjust endpoints/parameters based on your server routes if different.

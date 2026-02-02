@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Geração de QR Code</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background: #f0f2f5; margin: 0; }
+        .card { background: white; padding: 2rem; border-radius: 1rem; shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 90%; }
+        #qr-container { margin-top: 1.5rem; display: none; }
+        #qr-image { width: 250px; height: 250px; border: 1px solid #ddd; border-radius: 8px; }
+        button { background: #007bff; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; cursor: pointer; font-weight: bold; }
+        button:disabled { background: #ccc; }
+        .info { font-size: 0.8rem; color: #666; margin-top: 1rem; }
+        .link-preview { word-break: break-all; color: #007bff; font-size: 0.7rem; margin-top: 0.5rem; display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Gerador de QR Code</h2>
+        <p>Clique no botão para simular a geração do QR Code para a foto.</p>
+        
+        <button id="btn-generate">Gerar QR Code</button>
+
+        <div id="qr-container">
+            <img id="qr-image" src="" alt="QR Code Gerado">
+            <p class="info">Expira em: <span id="expires"></span></p>
+            <p class="info">URL do QR (onde o celular vai):</p>
+            <a id="qr-url-text" class="link-preview" target="_blank"></a>
+        </div>
+    </div>
+
+    <script>
+        const btn = document.getElementById('btn-generate');
+        const container = document.getElementById('qr-container');
+        const qrImage = document.getElementById('qr-image');
+        const expiresText = document.getElementById('expires');
+        const qrUrlLink = document.getElementById('qr-url-text');
+
+        // Substitua pelo seu PHOTO_ID real para testar
+        const PHOTO_ID = "df25becc-e99c-4285-a8ed-2eeb96588f27"; 
+        const BASE_URL = "http://localhost:3001";
+
+        btn.addEventListener('click', async () => {
+            btn.disabled = true;
+            btn.innerText = "Gerando...";
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/photos/${PHOTO_ID}/generate-qrcode`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ callback: "none" })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // 1. Define a imagem Base64 vinda do backend
+                    qrImage.src = result.data.qrCodeImage;
+                    
+                    // 2. Exibe as informações de expiração
+                    expiresText.innerText = result.data.expiresIn;
+                    
+                    // 3. Mostra a URL de destino (aquela com o token)
+                    qrUrlLink.href = result.data.qrUrl;
+                    qrUrlLink.innerText = result.data.qrUrl;
+
+                    container.style.display = 'block';
+                } else {
+                    alert("Erro: " + result.message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao conectar com o servidor. Verifique o CORS.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Gerar QR Code";
+            }
+        });
+    </script>
+</body>
+</html>
