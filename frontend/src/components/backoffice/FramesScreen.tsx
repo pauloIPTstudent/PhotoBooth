@@ -46,7 +46,8 @@ export const FramesScreen = () => {
   const fetchFrames = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/photos/frames/available`);
+      const url = `${process.env.NEXT_PUBLIC_BASE_URL}/api/photos/frames/available`;
+      const response = await fetch(url);
       const result = await response.json();
       if (result.success) {
         // Garantimos que o mapeamento de nomes (padding/spacing) seja consistente
@@ -63,9 +64,10 @@ export const FramesScreen = () => {
   const handleSave = async (formData: any) => { // Recebe os dados do componente filho
     const token = localStorage.getItem('token');
     const isEditing = !!editingId;
+    const baseUrl = `${process.env.NEXT_PUBLIC_BASE_URL}`;
     const url = isEditing 
-      ? `${process.env.NEXT_PUBLIC_BASE_URL}/api/frames/${editingId}` 
-      : `${process.env.NEXT_PUBLIC_BASE_URL}/api/frames`;
+      ? `${baseUrl}/api/frames/${editingId}` 
+      : `${baseUrl}/api/frames`;
     
     try {
       const res = await fetch(url, {
