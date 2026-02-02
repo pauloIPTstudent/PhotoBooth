@@ -64,8 +64,8 @@ export const FramesScreen = () => {
     const token = localStorage.getItem('token');
     const isEditing = !!editingId;
     const url = isEditing 
-      ? `http://localhost:3001/api/frames/${editingId}` 
-      : 'http://localhost:3001/api/frames';
+      ? `${process.env.NEXT_PUBLIC_BASE_URL}/api/frames/${editingId}` 
+      : `${process.env.NEXT_PUBLIC_BASE_URL}/api/frames`;
     
     try {
       const res = await fetch(url, {
@@ -99,7 +99,7 @@ export const FramesScreen = () => {
     const token = localStorage.getItem('token');
 
     try {
-      const res = await fetch(`http://localhost:3001/api/frames/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/frames/${id}`, {
         method: 'DELETE',
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
