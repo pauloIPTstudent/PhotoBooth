@@ -27,6 +27,7 @@ export const CaptureScreen = ({ projectId, projectStyle, frame, onConfirm }: Cap
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [msg, setmsg] = useState(false);
   const [activeFilter, setActiveFilter] = useState<'none' | 'grayscale' | 'sepia' | 'vibrant'>('none');
   
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -98,7 +99,10 @@ export const CaptureScreen = ({ projectId, projectStyle, frame, onConfirm }: Cap
 
   const startCaptureCycle = async () => {
     if (!selectedFrame) return;
+    setmsg(true)
     setIsCapturing(true);
+    await new Promise(r => setTimeout(r, 1000));
+    setmsg(false)
     setIsPaused(false);
     abortController.current = false;
     pauseController.current = false;
@@ -217,6 +221,11 @@ export const CaptureScreen = ({ projectId, projectStyle, frame, onConfirm }: Cap
             <span className="text-[18rem] font-black text-white drop-shadow-[0_10px_50px_rgba(0,0,0,0.5)] leading-none">{countdown}</span>
           </div>
         )}
+        {msg && (
+          <div className="flex items-center justify-center animate-in zoom-in">
+            <span className="text-[9rem] font-black text-white drop-shadow-[0_10px_50px_rgba(0,0,0,0.5)] leading-none">PRERAR</span>
+          </div>
+        )}
 
         {isPaused && (
           <div className="flex flex-col items-center animate-pulse">
@@ -252,7 +261,7 @@ export const CaptureScreen = ({ projectId, projectStyle, frame, onConfirm }: Cap
       </div>
 
       {/* FLASH VISUAL */}
-      {isCapturing && !countdown && !isPaused && (
+      {isCapturing && !countdown && !isPaused && !msg && (
         <div className="absolute inset-0 bg-white z-[60] animate-flash-fast pointer-events-none" />
       )}
     </div>
