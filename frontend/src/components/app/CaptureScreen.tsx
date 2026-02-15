@@ -9,6 +9,8 @@ interface FrameData {
   description: string;
   rows: number;
   cols: number;
+  photoWidth: number;
+  photoHeight: number;
 }
 
 interface CaptureScreenProps {
@@ -209,6 +211,42 @@ export const CaptureScreen = ({ projectId, projectStyle, frame, onConfirm }: Cap
           </div>
         </div>
       )}
+
+
+      
+      {/* MÁSCARA DE RECORTE (VIEWPORT) */}
+{selectedFrame && (
+  <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none overflow-hidden">
+    <div 
+      key={selectedFrame.id}
+      style={{
+        // A mágica acontece aqui:
+        // Usamos 'vmin' para garantir que a máscara sempre caiba na tela (independente se é PC ou Tablet)
+        // Se a largura é maior que a altura (Paisagem)
+        width: selectedFrame.photoWidth >= selectedFrame.photoHeight 
+          ? '100vmin' 
+          : `calc(100vmin * ${selectedFrame.photoWidth} / ${selectedFrame.photoHeight})`,
+        
+        // Se a altura é maior que a largura (Retrato)
+        height: selectedFrame.photoHeight > selectedFrame.photoWidth 
+          ? '100vmin' 
+          : `calc(100vmin * ${selectedFrame.photoHeight} / ${selectedFrame.photoWidth})`,
+
+        outline: '200vw solid rgba(0,0,0,0.7)',
+        border: '2px solid white',
+      }}
+      className="relative transition-all duration-300 ease-in-out"
+    >
+      <div className="absolute -top-6 left-0 w-full text-center">
+        <span className="text-white/70 text-[10px] font-bold uppercase tracking-widest">
+          {selectedFrame.photoWidth} x {selectedFrame.photoHeight}
+        </span>
+      </div>
+    </div>
+  </div>
+)}
+
+
 
       {/* CAMADA DE STATUS E TEXTOS */}
       <div className="relative z-10 w-full h-full flex flex-col items-center justify-between p-8 bg-gradient-to-b from-black/60 via-transparent to-black/80 pointer-events-none">

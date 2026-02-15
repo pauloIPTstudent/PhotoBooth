@@ -26,6 +26,9 @@ export interface FrameData {
   description: string;
   rows: number;
   cols: number;
+  photoWidth: number;
+  photoHeight: number;
+  
   // Adicione outros campos se precisar usá-los na prévia
 }
 
