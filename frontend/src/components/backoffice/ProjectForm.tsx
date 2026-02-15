@@ -243,7 +243,7 @@ export const ProjectForm = ({ initialData, isEditing, onSave, onCancel }: Projec
 
         </div>
         <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
-
+            <label className="block text-sm font-medium text-gray-700 mb-2">Frames do Projeto</label>
             <FrameSelection 
                 frames={frames} 
                 selectedIds={selected} 

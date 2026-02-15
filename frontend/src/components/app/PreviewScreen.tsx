@@ -162,7 +162,7 @@ export const PreviewScreen = ({
           
           <div className="w-1/2 h-full flex items-center justify-center p-12">
             <div className="relative animate-in zoom-in duration-700">
-              <img src={resultImage} className="max-h-[80vh] w-auto shadow-2xl border-4 border-white transform -rotate-1" alt="Preview Final" />
+              <img src={resultImage} className="max-h-[80vh] w-auto shadow-2xl transform -rotate-1" alt="Preview Final" />
             </div>
           </div>
 
