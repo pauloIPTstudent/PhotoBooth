@@ -87,15 +87,35 @@ function DownloadContent() {
     return { backgroundColor: style.primary || '#1a1a1a' };
   };
 
-  const handleDownload = () => {
-    if (!imageUrl) return;
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = `photobooth_${projectId?.slice(0, 5)}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  const handleDownload = async () => {
+  if (!imageUrl) return;
+
+  try {
+    // Busca o blob novamente para garantir que temos o arquivo pronto para compartilhar
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+    const file = new File([blob], `photo_${projectId?.slice(0, 5)}.jpg`, { type: 'image/jpeg' });
+
+    // Verifica se o navegador suporta compartilhamento de arquivos (Mobile Nativo)
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: 'Minha Foto',
+        text: 'Confira minha foto do Photo Booth!',
+      });
+    } else {
+      // Fallback para navegadores Desktop ou antigos: Download padrão
+      const link = document.createElement('a');
+      link.href = imageUrl;
+      link.download = `photobooth_${projectId?.slice(0, 5)}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  } catch (err) {
+    console.error("Erro ao baixar/compartilhar:", err);
+  }
+};
 
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-950 text-white">
@@ -144,7 +164,12 @@ function DownloadContent() {
             >
               <Download size={28} /> BAIXAR AGORA
             </button>
+            {/* Instrução para salvar direto na galeria */}
+            <p className="text-white/40 text-[10px] uppercase tracking-widest font-bold">
+              Dica: Você também pode pressionar a foto para salvar na galeria
+            </p>
           </div>
+          
         ) : (
           <div className="text-red-400 flex flex-col items-center gap-4 py-12">
             <AlertCircle size={64} className="opacity-50" />
