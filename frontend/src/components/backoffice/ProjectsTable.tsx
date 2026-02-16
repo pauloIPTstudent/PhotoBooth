@@ -7,6 +7,8 @@ interface Project {
   id: string;
   name: string;
   description: string;
+  preview_msg: string| null;
+  frame_msg: string| null;
   theme: string,
   primary: string;
   secondary: string;

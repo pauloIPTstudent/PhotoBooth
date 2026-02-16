@@ -8,6 +8,9 @@ function mapRowToProject(row: any): Project {
     userId: row.user_id,
     name: row.name,
     description: row.description,
+    preview_msg: row.preview_msg, 
+    frame_msg: row.frame_msg,
+    frame_img: row.frame_img,
     theme: row.theme,
     primary: row.primary_color,
     secondary: row.secondary_color,
@@ -62,9 +65,12 @@ export async function createProject(payload: Partial<Project>) {
     const secondary = (payload as any).secondary || styleFromBody.secondary || '#000000';
     const tertiary = (payload as any).tertiary || styleFromBody.tertiary || '#000000';
     const bg_image = (payload as any).bg_image || styleFromBody.bg_image || null;
+    const preview_msg = payload.preview_msg || styleFromBody.preview_msg || 'FICOU TOP!';
+    const frame_msg = payload.frame_msg || styleFromBody.frame_msg || null;
+    const frame_img = payload.frame_img || styleFromBody.frame_img || null;
     const query = `
-      INSERT INTO projects (id, user_id, name, description, theme, primary_color, secondary_color, tertiary_color, bg_image, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      INSERT INTO projects (id, user_id, name, description, theme, primary_color, secondary_color, tertiary_color, bg_image, preview_msg, frame_msg, frame_img, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
       RETURNING *;
     `;
 
@@ -78,6 +84,9 @@ export async function createProject(payload: Partial<Project>) {
       secondary,
       tertiary,
       bg_image,
+      preview_msg,
+      frame_msg,
+      frame_img,
       now,
       now,
     ]);
@@ -113,11 +122,14 @@ export async function updateProject(id: string, payload: Partial<Project>) {
     const secondary = (payload as any).secondary ?? styleFromBody.secondary ?? existing.secondary;
     const tertiary = (payload as any).tertiary ?? styleFromBody.tertiary ?? existing.tertiary;
     const bg_image = (payload as any).bg_image || styleFromBody.bg_image || existing.bg_image;
+    const preview_msg = (payload as any).preview_msg ?? styleFromBody.preview_msg ?? existing.preview_msg;
+    const frame_msg = (payload as any).frame_msg ?? styleFromBody.frame_msg ?? existing.frame_msg;
+    const frame_img = (payload as any).frame_img ?? styleFromBody.frame_img ?? existing.frame_img;
 
     const query = `
       UPDATE projects 
-      SET name = $1, description = $2, theme = $3, primary_color = $4, secondary_color = $5, tertiary_color = $6, bg_image = $7, updated_at = $8
-      WHERE id = $9
+      SET name = $1, description = $2, theme = $3, primary_color = $4, secondary_color = $5, tertiary_color = $6, bg_image = $7, preview_msg = $8, frame_msg = $9, frame_img = $10, updated_at = $11
+      WHERE id = $12
       RETURNING *;
     `;
 
@@ -129,6 +141,9 @@ export async function updateProject(id: string, payload: Partial<Project>) {
       secondary,
       tertiary,
       bg_image,
+      preview_msg,
+      frame_msg,
+      frame_img,
       now,
       id,
     ]);

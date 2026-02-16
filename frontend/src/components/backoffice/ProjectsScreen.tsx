@@ -10,6 +10,8 @@ interface Project {
   id: string;
   name: string;
   description: string;
+  preview_msg: string| null;
+  frame_msg: string| null;
   theme: string,
   primary: string;
   secondary: string;
@@ -24,6 +26,8 @@ interface ProjectsScreenProps {
 const INITIAL_FORM_STATE = {
   name: '',
   description: '',
+  preview_msg: '',
+  frame_msg: '',
   theme: 'default',
   primary: '#FF6B6B',
   secondary: '#4ECDC4',
