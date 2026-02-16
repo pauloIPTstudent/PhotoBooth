@@ -60,7 +60,7 @@ export const PreviewScreen = ({
       const formData = new FormData();
       formData.append('frameId', frame.id);
       formData.append('projectId', projectId || '');
-
+      
       for (let i = 0; i < photos.length; i++) {
         const blob = await base64ToBlob(photos[i]);
         formData.append('photo', blob, `photo-${i}.jpg`);
@@ -167,7 +167,7 @@ export const PreviewScreen = ({
           </div>
 
           <div className="w-1/2 h-full flex flex-col items-center justify-center p-14 text-center">
-            <h2 className="text-5xl font-black mb-4 italic text-white drop-shadow-lg">FICOU TOP!</h2>
+            <h2 className="text-5xl font-black mb-4 italic text-white drop-shadow-lg">{projectStyle?.preview_msg || 'FICOU TOP!'}</h2>
             
             <div className="flex flex-col gap-4 w-full max-w-sm">
               <button

@@ -3,18 +3,20 @@ import { SANS_32_BLACK  } from 'jimp/fonts'; // Importação limpa e direta
 import { Frame } from '../models/types.js';
 import { getFrameById } from './frameService.js';
 import path from 'path';
+import { getProjectById } from './projectService.js';
 
 export async function composePhotoBooth(
   photoBuffers: Buffer[],
   frameId: string,
-  backgroundColor: string = '#FFFFFF'
+  projectId:string,
 ) {
   const frame = await getFrameById(frameId);
   if (!frame) throw new Error(`Frame "${frameId}" not found`);
-
+  const project = await getProjectById(projectId);
+  if (!project) throw new Error(`Project "${projectId} not found`)
   try {
     const { rows, cols, photoWidth, photoHeight, padding } = frame;
-    const bgColor = backgroundColor;
+    const bgColor = '#FFFFFF';
 
     // 1. ESPAÇO DO RODAPÉ (Aumentei para 160 para dar uma margem bonita no fim)
     const footerHeight = 160; 
@@ -71,7 +73,8 @@ export async function composePhotoBooth(
       console.log("--- IMPRIMINDO TEXTO CENTRALIZADO ---");
 
       const font = await loadFont(SANS_32_BLACK);
-      const message = frame.message || "-"; 
+      
+      const message = project.frame_msg || "-*-*-*-*-*-*-*-*-"; 
 
       composite.print({
         font,

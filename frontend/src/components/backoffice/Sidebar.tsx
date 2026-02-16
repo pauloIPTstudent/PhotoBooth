@@ -17,7 +17,7 @@ export const Sidebar = ({ activeSection, onSectionChange, onLogout }: SidebarPro
   ];
 
   return (
-    <aside className="w-full md:w-64 bg-gray-900 text-white min-h-screen flex flex-col">
+    <aside className="w-full md:w-64 bg-gray-900 text-white h-full flex flex-col">
       {/* Logo/Title */}
       <div className="px-4 md:px-6 py-6 md:py-8 border-b border-gray-700">
         <h1 className="text-xl md:text-2xl font-bold">Photo Booth</h1>

@@ -73,7 +73,7 @@ export async function createProject(payload: Partial<Project>) {
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
       RETURNING *;
     `;
-
+ 
     const result = await pool.query(query, [
       id,
       (payload as any).userId || '1',
@@ -175,6 +175,8 @@ export async function getProjectStyle(id: string) {
     return {
       name: p.name,
       description: p.description,
+      preview_msg: p.preview_msg,
+      frame_msg: p.frame_msg,
       theme: p.theme,
       primary: p.primary,
       secondary: p.secondary,

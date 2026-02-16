@@ -238,7 +238,7 @@ export const deletePhoto = async (req: any, res: any) => {
 export const framePhoto = async (req: any, res: any) => {
   const { id } = req.params; // ID da sessão ou usuário
   const { frameId } = req.body;
-
+  const { projectId } = req.body;
   // No Express com Multer, os arquivos ficam em req.files
   const files = req.files as Express.Multer.File[];
   /*console.log('--- DEBUG BACKEND ---');
@@ -269,6 +269,7 @@ export const framePhoto = async (req: any, res: any) => {
     const composedImage = await composePhotoBooth(
       photoBuffers,
       frameId,
+      projectId
     );
 
     // Converter para base64
