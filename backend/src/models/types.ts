@@ -3,6 +3,9 @@ export interface Project {
   userId: string;
   name: string;
   description: string;
+  preview_msg: string;
+  frame_msg: string;
+  frame_img: string;
   theme: string;
   primary: string;
   secondary: string;

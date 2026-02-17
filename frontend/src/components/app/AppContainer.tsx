@@ -14,6 +14,8 @@ export type AppScreen = 'capture' | 'frame' | 'preview' | 'qrcode' | 'start';
 export interface ProjectStyle {
   name: string;
   description: string;
+  preview_msg: string;
+  frame_msg: string;
   theme: string;
   primary: string;
   secondary: string;

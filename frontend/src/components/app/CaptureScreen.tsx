@@ -39,11 +39,40 @@ export const CaptureScreen = ({ projectId, projectStyle, frame, onConfirm }: Cap
   const totalPhotosNeeded = (selectedFrame?.rows || 0) * (selectedFrame?.cols || 0);
 
   const filterStyles = {
-    none: '',
+    none: 'sepia(0%) grayscale(0%) saturate(100%)',
     grayscale: 'grayscale(100%)',
-    sepia: 'sepia(60%) contrast(110%)',
-    vibrant: 'saturate(150%) brightness(110%)'
+    sepia: 'sepia(80%) contrast(110%) brightness(95%)',
+    vibrant: 'saturate(160%) brightness(110%) contrast(110%)'
   };
+
+  // Estilos Injetados
+  const VideoFiltersCSS = () => (
+    <style dangerouslySetInnerHTML={{ __html: `
+      .video-capture-base {
+        transition: filter 0.3s ease-in-out, -webkit-filter 0.3s ease-in-out;
+        transform: scaleX(-1); /* Espelhamento via Transform */
+      }
+
+      .filter-none { 
+        filter: none; 
+      }
+      
+      .filter-grayscale { 
+        filter: grayscale(100%) !important; 
+        -webkit-filter: grayscale(100%) !important;
+      }
+      
+      .filter-sepia { 
+        filter: sepia(80%) contrast(110%) !important; 
+        -webkit-filter: sepia(80%) contrast(110%) !important;
+      }
+      
+      .filter-vibrant { 
+        filter: saturate(160%) brightness(110%) !important; 
+        -webkit-filter: saturate(160%) brightness(110%) !important;
+      }
+    `}} />
+  );
 
   useEffect(() => {
     async function setupCamera() {
@@ -149,11 +178,14 @@ export const CaptureScreen = ({ projectId, projectStyle, frame, onConfirm }: Cap
 
   return (
     <div className="fixed inset-0 bg-black overflow-hidden flex flex-col items-center justify-center font-sans">
+      <VideoFiltersCSS />
+      
       <video 
         ref={videoRef} 
-        autoPlay playsInline 
-        style={{ filter: `${filterStyles[activeFilter]} scaleX(-1)` }}
-        className="absolute inset-0 w-full h-full object-cover" 
+        autoPlay 
+        playsInline 
+        muted
+        className={`absolute inset-0 w-full h-full object-cover video-capture-base filter-${activeFilter}`}      
       />
 
       {/* BOTÕES DE CONTROLE TRANSLÚCIDOS */}

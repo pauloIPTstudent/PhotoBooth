@@ -1,0 +1,13 @@
+{
+  "name": "Cabine de Fotos Web",
+  "short_name": "Cabine",
+  "description": "Transforme seu browser numa cabine de fotos",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

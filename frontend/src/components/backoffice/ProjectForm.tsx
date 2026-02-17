@@ -120,7 +120,29 @@ export const ProjectForm = ({ initialData, isEditing, onSave, onCancel }: Projec
                         className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     />
                 </div>
+                <div>
+                    <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">Mensagem de preview</label>
+                    <input
+                        required
+                        type="text"
+                        value={formData.preview_msg|| ''}
+                        onChange={(e) => setFormData({ ...formData, preview_msg: e.target.value })}
+                        placeholder="Ex: Aniversário da Maria"
+                        className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    />
+                </div>
 
+                <div>
+                    <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">Mensagem de Frame</label>
+                    <input
+                        required
+                        type="text"
+                        value={formData.frame_msg|| ''}
+                        onChange={(e) => setFormData({ ...formData, frame_msg: e.target.value })}
+                        placeholder="Ex: Aniversário da Maria"
+                        className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    />
+                </div>
                 <div>
                     <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">Descrição</label>
                     <textarea
@@ -242,6 +264,7 @@ export const ProjectForm = ({ initialData, isEditing, onSave, onCancel }: Projec
             </div>
 
         </div>
+
         <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
             <label className="block text-sm font-medium text-gray-700 mb-2">Frames do Projeto</label>
             <FrameSelection 

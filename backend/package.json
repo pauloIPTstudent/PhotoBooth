@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "init-db": "node src/db/init_db.js"
@@ -33,7 +33,9 @@
     "@types/express": "^5.0.6",
     "@types/node": "^25.1.0",
     "@types/pg": "^8.10.9",
+    "cross-env": "^10.1.0",
     "ts-node-dev": "^2.0.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
 }
