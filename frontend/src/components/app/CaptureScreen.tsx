@@ -102,32 +102,71 @@ export const CaptureScreen = ({ projectId, projectStyle, frame, onConfirm }: Cap
 const takePhoto = () => {
   if (!videoRef.current) return null;
 
+  const video = videoRef.current;
   const canvas = document.createElement('canvas');
-  // Usamos as dimensões reais do vídeo
-  const width = videoRef.current.videoWidth;
-  const height = videoRef.current.videoHeight;
-  
-  canvas.width = width;
-  canvas.height = height;
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
   
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
 
-  // 1. Limpa o canvas
-  ctx.clearRect(0, 0, width, height);
-
-  // 2. Aplica o Filtro (AQUI ESTÁ O SEGREDO)
-  ctx.filter = filterStyles[activeFilter];
-
-  // 3. Aplica o espelhamento (Já que a câmera é 'user' / selfie)
-  ctx.translate(width, 0);
+  // 1. O segredo para iOS: Aplicar o filtro no contexto ANTES de qualquer desenho
+  // Mas como o Safari falha no ctx.filter, usamos este truque:
+  ctx.save(); 
+  
+  // Espelhamento
+  ctx.translate(canvas.width, 0);
   ctx.scale(-1, 1);
 
-  // 4. Desenha o frame do vídeo já com o filtro aplicado pelo contexto
-  ctx.drawImage(videoRef.current, 0, 0, width, height);
+  // 2. Se o ctx.filter não funcionar no iOS, aplicamos manualmente os filtros básicos
+  // via desenho se necessário, mas primeiro tentamos a forma oficial:
+  try {
+    ctx.filter = filterStyles[activeFilter];
+  } catch (e) {
+    // Fallback caso o navegador dê erro na propriedade filter
+    ctx.filter = 'none';
+  }
 
-  // 5. Retorna a imagem
+  // 3. Desenha a imagem
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+  ctx.restore();
+
+  // 4. Se a foto AINDA sair sem filtro no iOS (Bug específico do Webkit)
+  // Vamos forçar a conversão de cores para Grayscale ou Sepia manualmente 
+  // caso o filtro selecionado seja um desses:
+  if (activeFilter === 'grayscale') {
+    applyGrayscale(ctx, canvas.width, canvas.height);
+  } else if (activeFilter === 'sepia') {
+    applySepia(ctx, canvas.width, canvas.height);
+  }
+
   return canvas.toDataURL('image/jpeg', 0.9);
+};
+
+// Funções de Processamento de Imagem (Garantia para iOS)
+const applyGrayscale = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+  const imgData = ctx.getImageData(0, 0, w, h);
+  const data = imgData.data;
+  for (let i = 0; i < data.length; i += 4) {
+    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+    data[i] = avg;     // R
+    data[i + 1] = avg; // G
+    data[i + 2] = avg; // B
+  }
+  ctx.putImageData(imgData, 0, 0);
+};
+
+const applySepia = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+  const imgData = ctx.getImageData(0, 0, w, h);
+  const data = imgData.data;
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i], g = data[i + 1], b = data[i + 2];
+    data[i] = (r * 0.393) + (g * 0.769) + (b * 0.189);
+    data[i + 1] = (r * 0.349) + (g * 0.686) + (b * 0.168);
+    data[i + 2] = (r * 0.272) + (g * 0.534) + (b * 0.131);
+  }
+  ctx.putImageData(imgData, 0, 0);
 };
 
   const togglePause = () => {
