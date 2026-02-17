@@ -39,9 +39,9 @@ export const CaptureScreen = ({ projectId, projectStyle, frame, onConfirm }: Cap
   const totalPhotosNeeded = (selectedFrame?.rows || 0) * (selectedFrame?.cols || 0);
 
   const filterStyles = {
-    none: 'sepia(0%) grayscale(0%) saturate(100%)',
+    none: 'none',
     grayscale: 'grayscale(100%)',
-    sepia: 'sepia(80%) contrast(110%) brightness(95%)',
+    sepia: 'sepia(100%)', // Simplificado para melhor compatibilidade
     vibrant: 'saturate(160%) brightness(110%) contrast(110%)'
   };
 
@@ -99,19 +99,36 @@ export const CaptureScreen = ({ projectId, projectStyle, frame, onConfirm }: Cap
     } catch (error) { console.error("Erro frames:", error); }
   };
 
-  const takePhoto = () => {
-    if (!videoRef.current) return null;
-    const canvas = document.createElement('canvas');
-    canvas.width = videoRef.current.videoWidth;
-    canvas.height = videoRef.current.videoHeight;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return null;
-    ctx.filter = filterStyles[activeFilter];
-    ctx.translate(canvas.width, 0);
-    ctx.scale(-1, 1);
-    ctx.drawImage(videoRef.current, 0, 0);
-    return canvas.toDataURL('image/jpeg', 0.9);
-  };
+const takePhoto = () => {
+  if (!videoRef.current) return null;
+
+  const canvas = document.createElement('canvas');
+  // Usamos as dimensões reais do vídeo
+  const width = videoRef.current.videoWidth;
+  const height = videoRef.current.videoHeight;
+  
+  canvas.width = width;
+  canvas.height = height;
+  
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  // 1. Limpa o canvas
+  ctx.clearRect(0, 0, width, height);
+
+  // 2. Aplica o Filtro (AQUI ESTÁ O SEGREDO)
+  ctx.filter = filterStyles[activeFilter];
+
+  // 3. Aplica o espelhamento (Já que a câmera é 'user' / selfie)
+  ctx.translate(width, 0);
+  ctx.scale(-1, 1);
+
+  // 4. Desenha o frame do vídeo já com o filtro aplicado pelo contexto
+  ctx.drawImage(videoRef.current, 0, 0, width, height);
+
+  // 5. Retorna a imagem
+  return canvas.toDataURL('image/jpeg', 0.9);
+};
 
   const togglePause = () => {
     const newState = !isPaused;
