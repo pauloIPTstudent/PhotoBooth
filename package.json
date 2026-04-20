@@ -10,8 +10,8 @@
     "concurrently": "^8.2.2"
   },
   "scripts": {
-    "dev:frontend": "cd frontend && npm run dev",
+    "build": "npm install && npm run build -w frontend && npm run build -w backend",    "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run dev",
-    "dev": "concurrently -n \"FRONT,BACK\" -c \"cyan,magenta\" \"npm run dev:frontend\" \"sleep 12 && npm run dev:backend\""
+    "dev": "concurrently -n \"BACK,FRONT\" -c \"cyan,magenta\" \"npm run dev:backend\" \"sleep 12 && npm run dev:frontend\""
   }
 }
