@@ -101,7 +101,7 @@ export const ProjectForm = ({ initialData, isEditing, onSave, onCancel }: Projec
 };
   return (
     <div className="bg-white rounded-lg shadow p-4 md:p-6 mb-6 border border-gray-100">
-      <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-4">
+      <h2 className="text-lg md:text-xl font-bold text-gray-700 mb-4">
         {isEditing ? 'Editar Projeto' : 'Criar Novo Projeto'}
       </h2>
       
@@ -117,7 +117,7 @@ export const ProjectForm = ({ initialData, isEditing, onSave, onCancel }: Projec
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder="Ex: Aniversário da Maria"
-                        className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                        className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-700 "
                     />
                 </div>
                 <div>
@@ -128,7 +128,7 @@ export const ProjectForm = ({ initialData, isEditing, onSave, onCancel }: Projec
                         value={formData.preview_msg|| ''}
                         onChange={(e) => setFormData({ ...formData, preview_msg: e.target.value })}
                         placeholder="Ex: Aniversário da Maria"
-                        className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                        className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-700 "
                     />
                 </div>
 
@@ -140,7 +140,7 @@ export const ProjectForm = ({ initialData, isEditing, onSave, onCancel }: Projec
                         value={formData.frame_msg|| ''}
                         onChange={(e) => setFormData({ ...formData, frame_msg: e.target.value })}
                         placeholder="Ex: Aniversário da Maria"
-                        className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                        className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-700 "
                     />
                 </div>
                 <div>
@@ -150,7 +150,7 @@ export const ProjectForm = ({ initialData, isEditing, onSave, onCancel }: Projec
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         placeholder="Descreva o projeto"
                         rows={3}
-                        className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                        className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-700 "
                     />
                 </div>
 
@@ -163,7 +163,7 @@ export const ProjectForm = ({ initialData, isEditing, onSave, onCancel }: Projec
                 <select 
                   value={formData.theme}
                   onChange={(e) => setFormData({ ...formData, theme: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg text-sm bg-white"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm  text-gray-700"
                 >
                   <option value="default">Padrão</option>
                   <option value="modern">Gradiente</option>
@@ -178,7 +178,7 @@ export const ProjectForm = ({ initialData, isEditing, onSave, onCancel }: Projec
                 {(formData.theme === 'default' || formData.theme === 'modern') && (
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Primária</label>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Primária</label>
                       <input
                         type="color"
                         value={formData.primary}
@@ -190,7 +190,7 @@ export const ProjectForm = ({ initialData, isEditing, onSave, onCancel }: Projec
                     {/* Secundária: Só aparece no modo Gradiente (modern) */}
                     {formData.theme === 'modern' && (
                       <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Secundária</label>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Secundária</label>
                         <input
                           type="color"
                           value={formData.secondary}
@@ -201,7 +201,7 @@ export const ProjectForm = ({ initialData, isEditing, onSave, onCancel }: Projec
                     )}
 
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Terciária</label>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Terciária</label>
                       <input
                         type="color"
                         value={formData.tertiary}
@@ -239,10 +239,10 @@ export const ProjectForm = ({ initialData, isEditing, onSave, onCancel }: Projec
                       ) : (
                         /* Caso não tenha imagem, mostra o ícone original */
                         <div className="flex flex-col items-center justify-center pt-2 pb-2">
-                          <svg className="w-8 h-8 mb-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-8 h-8 mb-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                           </svg>
-                          <p className="text-xs text-gray-500 font-semibold text-center">
+                          <p className="text-xs text-gray-700 font-semibold text-center">
                             Clique para upload <br/> (PNG, JPG ou SVG)
                           </p>
                         </div>
@@ -285,7 +285,7 @@ export const ProjectForm = ({ initialData, isEditing, onSave, onCancel }: Projec
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 md:px-6 py-2 rounded-lg font-semibold transition-colors text-sm md:text-base"
+            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 md:px-6 py-2 rounded-lg font-semibold transition-colors text-sm md:text-base"
           >
             Cancelar
           </button>

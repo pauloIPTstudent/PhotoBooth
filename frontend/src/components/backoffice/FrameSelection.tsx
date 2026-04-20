@@ -77,10 +77,10 @@ export const FrameSelection = ({
                 {isSelected && <Check size={14} strokeWidth={3} />}
               </div>
 
-              <h3 className="font-semibold text-sm pr-8">{f.name}</h3>
-              <p className="text-xs text-gray-500 mt-1 line-clamp-2">{f.description}</p>
+              <h3 className="font-semibold text-gray-700 text-sm pr-8">{f.name}</h3>
+              <p className="text-xs text-gray-700 mt-1 line-clamp-2">{f.description}</p>
               
-              <div className="mt-4 flex flex-col gap-1 text-[11px] text-gray-400 font-medium uppercase tracking-wider">
+              <div className="mt-4 flex flex-col gap-1 text-[11px] text-gray-700 font-medium uppercase tracking-wider">
                 <span>Grid {f.rows}x{f.cols}</span>
                 <span>{f.photoWidth}x{f.photoHeight}px</span>
               </div>

@@ -1,0 +1,17 @@
+{
+  "name": "photobooth",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "dev": "concurrently -n \"FRONT,BACK\" -c \"cyan,magenta\" \"npm run dev:frontend\" \"sleep 12 && npm run dev:backend\""
+  }
+}

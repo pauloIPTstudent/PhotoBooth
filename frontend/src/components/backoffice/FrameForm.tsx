@@ -29,7 +29,7 @@ export const FrameForm = ({ initialData, isEditing, onSave, onCancel }: FrameFor
             required
             value={form.name} 
             onChange={(e) => setForm({ ...form, name: e.target.value })} 
-            className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" 
+            className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none text-gray-700 " 
           />
         </div>
         <div>
@@ -37,7 +37,7 @@ export const FrameForm = ({ initialData, isEditing, onSave, onCancel }: FrameFor
           <input 
             value={form.description} 
             onChange={(e) => setForm({ ...form, description: e.target.value })} 
-            className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" 
+            className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none text-gray-700 " 
           />
         </div>
         <div>
@@ -46,7 +46,7 @@ export const FrameForm = ({ initialData, isEditing, onSave, onCancel }: FrameFor
             type="number" 
             value={form.rows} 
             onChange={(e) => setForm({ ...form, rows: parseInt(e.target.value || '1') })} 
-            className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" 
+            className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none text-gray-700" 
           />
         </div>
         <div>
@@ -55,7 +55,7 @@ export const FrameForm = ({ initialData, isEditing, onSave, onCancel }: FrameFor
             type="number" 
             value={form.cols} 
             onChange={(e) => setForm({ ...form, cols: parseInt(e.target.value || '1') })} 
-            className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" 
+            className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none text-gray-700 " 
           />
         </div>
         <div>
@@ -64,7 +64,7 @@ export const FrameForm = ({ initialData, isEditing, onSave, onCancel }: FrameFor
             type="number" 
             value={form.photoWidth} 
             onChange={(e) => setForm({ ...form, photoWidth: parseInt(e.target.value || '100') })} 
-            className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" 
+            className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none text-gray-700" 
           />
         </div>
         <div>
@@ -73,7 +73,7 @@ export const FrameForm = ({ initialData, isEditing, onSave, onCancel }: FrameFor
             type="number" 
             value={form.photoHeight} 
             onChange={(e) => setForm({ ...form, photoHeight: parseInt(e.target.value || '100') })} 
-            className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" 
+            className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none text-gray-700" 
           />
         </div>
         <div>
@@ -82,7 +82,7 @@ export const FrameForm = ({ initialData, isEditing, onSave, onCancel }: FrameFor
             type="number" 
             value={form.padding} 
             onChange={(e) => setForm({ ...form, padding: parseInt(e.target.value || '0') })} 
-            className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" 
+            className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none text-gray-700" 
           />
         </div>
 
